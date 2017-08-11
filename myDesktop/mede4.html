@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>魔新使者----桌面</title>
+<link type="text/css" rel="stylesheet" href="css/common.css">
+<link type="text/css" rel="stylesheet" href="css/shouye.css">
+<link type="text/css" rel="stylesheet" href="css/cWin.css">
+<script src="js/jquery-1.12.2.min.js"></script>
+<script src="js/cWin.min.js"></script>
+<script src="js/Drag.js"></script>
+<script src="js/shouye.js"></script>
+</head>
+<body>
+<!-- 网页图片加载进度 -->
+<!--<div id="progress_bar">
+    <span>1%</span>
+</div>-->
+
+<!--页面内容开始-->
+<div id="desktop" onselectstart="return false;">
+	<!-- 桌面图标 -->
+	<div id="icon_wrap">
+        <ul id="icon_list">
+            <li inow="shouye" img="img/10.png">
+                <div><img src="img/10.png"></div>
+                <span></span>
+                <h4>首页</h4>
+            </li>
+            <li inow="huishouzhan" img="img/1.png">
+                <div><img src="img/1.png"></div>
+                <span></span>
+                <h4>回收站</h4>
+            </li>
+            <li inow="tuce" img="img/5.png">
+                <div><img src="img/5.png"></div>
+                <span></span>
+                <h4>图册</h4>
+            </li>
+            <li inow="youxiang" img="img/8.png">
+                <div><img src="img/8.png"></div>
+                <span></span>
+                <h4>邮箱</h4>
+            </li>
+            <li inow="sousuo" img="img/9.png">
+                <div><img src="img/9.png"></div>
+                <span></span>
+                <h4>搜索</h4>
+            </li>
+            <li inow="wenjianjia" img="img/4.png">
+                <div><img src="img/4.png"></div>
+                <span></span>
+                <h4>文件夹</h4>
+            </li>
+            <li inow="shizhong" img="img/7.png">
+                <div><img src="img/7.png"></div>
+                <span></span>
+                <h4>时钟</h4>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- 图标右键菜单 -->
+    <ul id="icon_menu" class="common-menu">
+    	<li now="dakai">打开</li>
+        <li now="fasongdao">发送到</li>
+        <li now="jianqie">剪切</li>
+        <li now="fuzhi">复制</li>
+        <li now="shanchu">删除</li>
+        <li now="chongmingming">重命名</li>        
+        <li now="shuxing">属性</li>
+    </ul>
+    
+    <!-- 桌面右键菜单 -->
+    <ol id="right-menu" class="common-menu">
+    	<li class="pos1">
+        	<a href="javascript:;">查看</a>
+            <span></span>
+            <dl id="chakan-menu" class="menu-xiaji">
+            	<dd now="da">大图标</dd>
+                <dd now="zhong" class="icon moren">中等图标</dd>
+                <dd now="xiao" class="bor-bot">小图标</dd>
+                <dd now="zi" class="bor-bot icon moren">自动排列图标</dd>
+                <dd now="xian1" class="icon moren">显示桌面图标</dd>
+                <dd now="xian2" class="icon moren">显示桌面小工具</dd>
+            </dl>
+        </li>
+        <li class="pos2">
+        	<a href="javascript:;">排序方式</a>
+            <span></span>
+            <dl id="paixu-menu" class="menu-xiaji">
+            	<dd now="ming">名称</dd>
+                <dd now="sui">随机</dd>
+                <dd now="da">大小</dd>
+                <dd now="xiu">修改日期</dd>
+            </dl>
+        </li>
+        <li class="shuaxin pos3">刷新</li>
+        <li class="pos4">
+        	<a href="javascript:;">新建</a>
+            <span></span>
+            <dl id="xinjian-menu" class="menu-xiaji">
+                <dd now="wenjianjia">新建文件夹</dd>
+                <dd now="wendang">新建文档</dd>
+            </dl>
+        </li>
+        <li class="gexinghua pos5">个性化</li>
+        <li class="huifumoren pos6">恢复默认</li>
+        <li class="beijing pos7">桌面背景</li>
+        <li class="pos8">关于</li>
+        <li class="pos9">退出登录</li>
+    </ol>
+    
+    <!-- 右侧隐藏栏 -->
+    <div id="right-bar">
+        <div class="right-bar-tog">
+            <span class="top"></span>
+            <span class="cen"></span>
+            <span class="bot"></span>
+        </div>
+        <div class="right-bar-top"><span></span></div>
+        <div class="right-bar-con">
+            <div class="right-bar-scroll"></div>
+            <ul class="right-bar-list">
+                <li now="shizhong" style="background:url(img/xiaogongju.png) no-repeat 2px 11px;"></li>
+                <li now="pintu" style="background:url(img/xiaogongju.png) no-repeat 2px -89px;"></li>
+                <li>3</li>
+                <li>4</li>
+                <li>3</li>
+                <li>4</li>
+                <li>3</li>
+                <li>4</li>
+                <li>3</li>
+                <li>4</li>
+                <li>3</li>
+                <li>4</li>
+            </ul>
+        </div>
+        <div class="right-bar-bot"><span></span></div>
+    </div>
+    
+    <!-- 底部开始菜单栏 -->
+    <div id="start_bar">
+        <div class="start_anniu"><img src="img/start.png"></div>
+        <div class="start_toor">
+            <div class="start_toor_l"><i></i></div>
+            <div class="start_toor_main">
+                <ul class="start_toor_con"></ul>
+            </div>
+            <div class="start_toor_r"><i></i></div>
+        </div>
+    </div>
+    <div id="start_bar_opa"><!--透明层，只为兼容ie低版本--></div>
+    
+    <!-- 桌面工具 -->
+    <div id="tool">
+        <!-- 桌面时钟 -->
+        <!-- <div id="clock">
+            <div class="second"></div>
+            <div class="minute"></div>
+            <div class="hour"></div>    
+            <div class="icon1"></div>
+            <div class="icon2"></div>
+            <div class="icon3"></div>
+            <div class="icon4"></div>
+        </div> -->
+    </div>
+</div>
+<!--页面内容结束-->
+</body>
+</html>

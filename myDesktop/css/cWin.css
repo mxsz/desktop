@@ -1,0 +1,40 @@
+@charset "utf-8";
+/*弹窗公共样式*/
+.pae{position:absolute;}
+.l_edge{width:8px;right:0;top:42px;bottom:8px;cursor:e-resize;}
+.b_edge{height:8px;left:0;right:8px;bottom:0;cursor:n-resize;}
+.l_b_horn{width:8px;height:8px;right:0;bottom:0;cursor:nw-resize;}
+.win_confirm,.win_cancel{width:70px;height:36px;font:16px/36px "微软雅黑";text-align:center;color:#fff;bottom:15px;border-radius:4px;cursor:pointer;}
+.win_confirm{background:#4b8df8;right:100px;}
+.win_cancel{background:#35aa47;right:15px;}
+.win_html{left:8px;top:0;bottom:8px;right:8px;background:#fff;overflow:hidden;}
+.mark_elem{width:100%;position:absolute;left:0;top:0;background:#000;opacity:0.4;filter:alpha(opacity:40);}
+.win_con_mark{left:0;top:42px;right:8px;bottom:8px;}
+/*图标窗口样式*/
+.icon_win{background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);}
+.icon_win .win_top{height:40px;border:1px solid #21b3ff;left:0;right:0;}
+.icon_win .win_title{padding-left:10px;font:14px/40px "宋体";color:#333;font-weight:600;cursor:default;left:0;right:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.icon_win .win_min,.icon_win .win_max,.icon_win .win_close{width:25px;height:24px;border:1px solid #fff;background:url(../img/bg_close.png) no-repeat;cursor:pointer;border-radius:2px;top:7px;}
+.icon_win .win_min{right:64px;background-position:0 7px;}
+.icon_win .win_max{right:37px;background-position:-25px 8px;}
+.icon_win .win_close{right:10px;background-position:-50px 8px;}
+.icon_win .win_big{background-position:-100px 7px;}
+.icon_win .win_min:hover,.icon_win .win_max:hover{border-color:#ececec;}
+.icon_win .win_close:hover{border-color:#ffe1e1;background-color:#fef0f0;background-position:-75px 8px;}
+.icon_win .win_con{border:1px solid #21b3ff;border-top:none;left:0;right:0;top:42px;bottom:0;overflow:hidden;}
+/*设置窗口样式*/
+.setup_win{background:#6fbfe7;border-radius:4px;overflow:hidden;}
+.setup_win .win_top{left:0;right:0;height:26px;background:url(../img/sz_titbg.png) no-repeat 8px 7px;border:1px solid #499ccc;border-bottom:none;color:#fff;}
+.setup_win .win_title{left:0;right:25px;padding-left:26px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default;font:12px/26px "宋体";}
+.setup_win .win_close{width:24px;height:14px;font:12px/14px "宋体";text-align:center;cursor:pointer;top:-1px;right:8px;border:1px solid #499ccc;border-radius:0 0 4px 4px;}
+.setup_win .win_close:hover{color:#F00;}
+.setup_win .win_con{top:26px;bottom:0;left:0;right:0;border:1px solid #499ccc;border-top:none;overflow:hidden;}
+.setup_win .win_html{left:6px;right:6px;bottom:6px;border:1px solid #499ccc;}
+/*对话框窗口样式*/
+.duihua_win{background:#fff;}
+.duihua_win .win_top{width:100%;height:36px;background:#0186e1;cursor:default;color:#fff;}
+.duihua_win .win_title{font:14px/36px "微软雅黑";overflow:hidden;text-overflow:ellipsis;white-space:nowrap;left:0;right:26px;padding-left:14px;}
+.duihua_win .win_close{width:12px;height:12px;font:12px/12px "宋体";text-align:center;top:12px;right:12px;cursor:pointer;border:1px solid transparent;}
+.duihua_win .win_close:hover{color:#F60;border-color:#F60;}
+.duihua_win .win_con{top:36px;bottom:0;left:0;right:0;border:1px solid #ccc;border-top:none;overflow:hidden;}
+.duihua_win .win_html{bottom:50px;}
