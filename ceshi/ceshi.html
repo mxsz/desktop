@@ -12,7 +12,7 @@ input,select,button,textarea{outline:none;}
 
 #box{width:680px;height:460px;border:1px solid #333;margin:100px auto 0;position:relative;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
 #box .img-wrap{width:100%;height:100%;}
-#box .img-wrap a{display:block;width:100%;height:100%;perspective:600px;transform-style:preserve-3d;}
+#box .img-wrap a{display:block;width:100%;height:100%;perspective:500px;background:url(img/1.jpg) no-repeat center center;}
 #box .img-wrap a div{float:left;}
 #box .ol{height:30px;position:absolute;right:10px;bottom:10px;}
 #box .ol li{width:30px;height:30px;margin-left:10px;float:left;background:#999;border-radius:50%;cursor:pointer;}
@@ -32,22 +32,27 @@ document.addEventListener('DOMContentLoaded',function(){
 	var iOlLiLen=oOlLi.length;
 	var oPrev=oBox.getElementsByClassName('prev')[0];
 	var oNext=oBox.getElementsByClassName('next')[0];
-	var hrefArr=['#1','#2','#3','#4','#5'];
-	var imgArr=['img/1.jpg','img/2.jpg','img/3.jpg','img/4.jpg','img/5.jpg'];	
+	var hrefArr=['#1','#2','#3','#4','#5'];//a标签的href
+	var imgArr=['img/1.jpg','img/2.jpg','img/3.jpg','img/4.jpg','img/5.jpg'];//图片url
 	var aAWid=aA.offsetWidth;//大图宽
 	var aAHei=aA.offsetHeight;//大图高
-	var smallWid=170;//小图宽
-	var smallHei=115;//小图高
+	var smallWid=136;//小图宽
+	var smallHei=92;//小图高
 	var col=Math.ceil(aAWid/smallWid);
 	var row=Math.ceil(aAHei/smallHei);
 	var surplusWid=aAWid-smallWid*(col-1);//每一行最后一个的宽
 	var surplusHei=aAHei-smallHei*(row-1);//每一列最后一个的高
-	var iNow=iNow2=1;//上一个图和当前的图
+	var iNow=iNow2=0;//上一个图和当前的图
 	var timer=0;//延时器
 	var timer2=0;//定时器
-	//初始化第一次数据
-	aA.href=hrefArr[iNow2];
-	aA.style.background='url('+imgArr[iNow2]+') no-repeat center center';
+	//加载所有图片并初始化第一次数据
+	for(var i=0;i<iOlLiLen;i++){
+		oBox.style.backgroundImage='url('+imgArr[i]+')';
+	}
+	if(iNow!==0){
+		aA.href=hrefArr[iNow2];
+		aA.style.background='url('+imgArr[iNow2]+') no-repeat center center';
+	}
 	oOlLi[iNow2].className='active';
 	//将大图分割成若干个小图(创建若干个div)
 	var strDiv='';
@@ -78,7 +83,7 @@ document.addEventListener('DOMContentLoaded',function(){
 		timer=setTimeout(function(){
 			for(var i=0;i<aADiv.length;i++){
 				aADiv[i].style.transition='transform 500ms,opacity 500ms,visibility 500ms';
-				aADiv[i].style.transform='translateZ(350px) rotate('+(Math.random()*180)+'deg) rotateX('+(Math.random()*180)+'deg) rotateY('+(Math.random()*180)+'deg)';
+				aADiv[i].style.transform='translateZ(350px) rotate('+((Math.random()*2-1)*180)+'deg) rotateX('+((Math.random()*2-1)*180)+'deg) rotateY('+((Math.random()*2-1)*180)+'deg)';
 				aADiv[i].style.opacity=0;
 				aADiv[i].style.visibility='hidden';
 			}
@@ -103,22 +108,30 @@ document.addEventListener('DOMContentLoaded',function(){
 		lesgo();
 	},false);
 	//下一张按钮
-	oNext.addEventListener('click',function(){
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){
 		if(iNow2==iOlLiLen-1){
 			iNow2=0;
 		}else{
 			iNow2++;
 		}
 		lesgo();
+	}
+	//自动播放
+	timer2=setInterval(nextFn,5000);
+	oBox.addEventListener('mouseenter',function(){
+		clearInterval(timer2);
 	},false);
-	
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);
 },false);
 </script>
 </head>
-<body style="overflow:hidden;">
+<body style="overflow-x:hidden;height:1000px;">
 <div id="box">
 	<div class="img-wrap">
-    	<a></a>
+    	<a href="#1"></a>
     </div>
     <ol class="ol">
     	<li></li>
