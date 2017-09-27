@@ -45,10 +45,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	var iNow=iNow2=0;//上一个图和当前的图
 	var timer=0;//延时器
 	var timer2=0;//定时器
-	//加载所有图片并初始化第一次数据
-	for(var i=0;i<iOlLiLen;i++){
-		oBox.style.backgroundImage='url('+imgArr[i]+')';
-	}
+	//初始化第一次数据
 	if(iNow!==0){
 		aA.href=hrefArr[iNow2];
 		aA.style.background='url('+imgArr[iNow2]+') no-repeat center center';
