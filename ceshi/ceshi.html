@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+table{border-collapse:collapse}
+a{text-align:center;}
+ul,ol{list-style:none;}
+input,select,button,textarea{outline:none;}
+
+#box{width:680px;height:460px;border:1px solid #333;margin:100px auto 0;position:relative;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+#box .img-wrap{width:100%;height:100%;}
+#box .img-wrap a{display:block;width:100%;height:100%;perspective:600px;transform-style:preserve-3d;}
+#box .img-wrap a div{float:left;}
+#box .ol{height:30px;position:absolute;right:10px;bottom:10px;}
+#box .ol li{width:30px;height:30px;margin-left:10px;float:left;background:#999;border-radius:50%;cursor:pointer;}
+#box .ol .active{background:#f60;}
+#box .prev,#box .next{width:40px;height:80px;background:rgba(0,0,0,0.7);position:absolute;top:50%;margin-top:-40px;border-radius:10px;text-align:center;line-height:80px;font:30px/80px "宋体";color:#fff;cursor:pointer;}
+#box .prev{left:5px;}
+#box .next{right:5px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var oImgWrap=oBox.getElementsByClassName('img-wrap')[0];
+	var aA=oImgWrap.getElementsByTagName('a')[0];
+	var aADiv=aA.getElementsByTagName('div');
+	var oOl=oBox.getElementsByClassName('ol')[0];	
+	var oOlLi=oOl.getElementsByTagName('li');
+	var iOlLiLen=oOlLi.length;
+	var oPrev=oBox.getElementsByClassName('prev')[0];
+	var oNext=oBox.getElementsByClassName('next')[0];
+	var hrefArr=['#1','#2','#3','#4','#5'];
+	var imgArr=['img/1.jpg','img/2.jpg','img/3.jpg','img/4.jpg','img/5.jpg'];	
+	var aAWid=aA.offsetWidth;//大图宽
+	var aAHei=aA.offsetHeight;//大图高
+	var smallWid=50;//小图宽
+	var smallHei=65;//小图高
+	var col=Math.ceil(aAWid/smallWid);
+	var row=Math.ceil(aAHei/smallHei);
+	var surplusWid=aAWid-smallWid*(col-1);//每一行最后一个的宽
+	var surplusHei=aAHei-smallHei*(row-1);//每一列最后一个的高
+	var iNow=iNow2=1;//上一个图and当前的图
+	var timer=null;
+	aA.href=hrefArr[iNow2];
+	aA.style.background='url('+imgArr[iNow2]+') no-repeat center center';
+	oOlLi[iNow2].className='active';
+	//右下角按钮
+	for(var i=0;i<iOlLiLen;i++){
+		oOlLi[i].index=i;
+		oOlLi[i].addEventListener('click',function(){
+			for(var i=0;i<aADiv.length;i++){
+				aADiv[i].style.backgroundImage='url('+imgArr[iNow]+')';
+				aADiv[i].style.transition='transform 0ms,opacity 0ms';			
+				aADiv[i].style.transform='none';
+				aADiv[i].style.opacity=1;
+				aADiv[i].style.visibility='visible';
+			}
+			iNow2=this.index;
+			oOlLi[iNow].className='';
+			this.className='active';
+			aA.href=hrefArr[iNow2];
+			aA.style.backgroundImage='url('+imgArr[iNow2]+')';
+			clearTimeout(timer);
+			timer=setTimeout(function(){
+				for(var i=0;i<aADiv.length;i++){
+					aADiv[i].style.transition='transform 500ms,opacity 500ms,visibility 500ms';
+					aADiv[i].style.transform='translateZ(350px) rotate('+(Math.random()*180)+'deg) rotateX('+(Math.random()*180)+'deg) rotateY('+(Math.random()*180)+'deg)';
+					aADiv[i].style.opacity=0;
+					aADiv[i].style.visibility='hidden';
+				}
+			},100)
+			
+			
+			
+						
+			iNow=iNow2;
+		},false);
+	}
+	
+	
+	//将大图分割成若干个小图(创建若干个div)
+	function createSmallImg(){
+		var strDiv='';
+		for(var i=0;i<row;i++){
+			var newWid=smallWid;
+			var newHei=smallHei;
+			if(i==row-1)newHei=surplusHei;
+			for(var k=0;k<col;k++){
+				if(k==col-1)newWid=surplusWid;
+				strDiv+='<div style="width:'+newWid+'px;height:'+newHei+'px;background:url('+imgArr[iNow2]+') -'+k*smallWid+'px -'+i*smallHei+'px;"></div>';		
+			}
+		}
+		aA.innerHTML=strDiv;
+	}
+	createSmallImg();
+},false);
+</script>
+</head>
+<body style="overflow:hidden;">
+<div id="box">
+	<div class="img-wrap">
+    	<a></a>
+    </div>
+    <ol class="ol">
+    	<li></li>
+        <li></li>
+        <li></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>
