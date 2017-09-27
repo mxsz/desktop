@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>爆炸轮播图</title>
+<title>无标题文档</title>
 <style>
 *{margin:0;padding:0;}
 table{border-collapse:collapse}
@@ -42,60 +42,76 @@ document.addEventListener('DOMContentLoaded',function(){
 	var row=Math.ceil(aAHei/smallHei);
 	var surplusWid=aAWid-smallWid*(col-1);//每一行最后一个的宽
 	var surplusHei=aAHei-smallHei*(row-1);//每一列最后一个的高
-	var iNow=iNow2=1;//上一个图and当前的图
-	var timer=null;
+	var iNow=iNow2=1;//上一个图和当前的图
+	var timer=0;//延时器
+	var timer2=0;//定时器
+	//初始化第一次数据
 	aA.href=hrefArr[iNow2];
 	aA.style.background='url('+imgArr[iNow2]+') no-repeat center center';
 	oOlLi[iNow2].className='active';
+	//将大图分割成若干个小图(创建若干个div)
+	var strDiv='';
+	for(var i=0;i<row;i++){
+		var newWid=smallWid;
+		var newHei=smallHei;
+		if(i==row-1)newHei=surplusHei;
+		for(var k=0;k<col;k++){
+			if(k==col-1)newWid=surplusWid;
+			strDiv+='<div style="width:'+newWid+'px;height:'+newHei+'px;background:url('+imgArr[iNow2]+') -'+k*smallWid+'px -'+i*smallHei+'px;"></div>';		
+		}
+	}
+	aA.innerHTML=strDiv;
+	//转换主要函数
+	function lesgo(){
+		for(var i=0;i<aADiv.length;i++){
+			aADiv[i].style.backgroundImage='url('+imgArr[iNow]+')';
+			aADiv[i].style.transition='transform 0ms,opacity 0ms';			
+			aADiv[i].style.transform='none';
+			aADiv[i].style.opacity=1;
+			aADiv[i].style.visibility='visible';
+		}			
+		oOlLi[iNow].className='';
+		oOlLi[iNow2].className='active';
+		aA.href=hrefArr[iNow2];
+		aA.style.backgroundImage='url('+imgArr[iNow2]+')';
+		clearTimeout(timer);
+		timer=setTimeout(function(){
+			for(var i=0;i<aADiv.length;i++){
+				aADiv[i].style.transition='transform 500ms,opacity 500ms,visibility 500ms';
+				aADiv[i].style.transform='translateZ(350px) rotate('+(Math.random()*180)+'deg) rotateX('+(Math.random()*180)+'deg) rotateY('+(Math.random()*180)+'deg)';
+				aADiv[i].style.opacity=0;
+				aADiv[i].style.visibility='hidden';
+			}
+		},100);
+		iNow=iNow2;
+	}
 	//右下角按钮
 	for(var i=0;i<iOlLiLen;i++){
 		oOlLi[i].index=i;
 		oOlLi[i].addEventListener('click',function(){
-			for(var i=0;i<aADiv.length;i++){
-				aADiv[i].style.backgroundImage='url('+imgArr[iNow]+')';
-				aADiv[i].style.transition='transform 0ms,opacity 0ms';			
-				aADiv[i].style.transform='none';
-				aADiv[i].style.opacity=1;
-				aADiv[i].style.visibility='visible';
-			}
 			iNow2=this.index;
-			oOlLi[iNow].className='';
-			this.className='active';
-			aA.href=hrefArr[iNow2];
-			aA.style.backgroundImage='url('+imgArr[iNow2]+')';
-			clearTimeout(timer);
-			timer=setTimeout(function(){
-				for(var i=0;i<aADiv.length;i++){
-					aADiv[i].style.transition='transform 500ms,opacity 500ms,visibility 500ms';
-					aADiv[i].style.transform='translateZ(350px) rotate('+(Math.random()*180)+'deg) rotateX('+(Math.random()*180)+'deg) rotateY('+(Math.random()*180)+'deg)';
-					aADiv[i].style.opacity=0;
-					aADiv[i].style.visibility='hidden';
-				}
-			},100)
-			
-			
-			
-						
-			iNow=iNow2;
+			lesgo();
 		},false);
 	}
-	
-	
-	//将大图分割成若干个小图(创建若干个div)
-	function createSmallImg(){
-		var strDiv='';
-		for(var i=0;i<row;i++){
-			var newWid=smallWid;
-			var newHei=smallHei;
-			if(i==row-1)newHei=surplusHei;
-			for(var k=0;k<col;k++){
-				if(k==col-1)newWid=surplusWid;
-				strDiv+='<div style="width:'+newWid+'px;height:'+newHei+'px;background:url('+imgArr[iNow2]+') -'+k*smallWid+'px -'+i*smallHei+'px;"></div>';		
-			}
+	//上一张按钮
+	oPrev.addEventListener('click',function(){
+		if(iNow2==0){
+			iNow2=iOlLiLen-1;
+		}else{
+			iNow2--;
 		}
-		aA.innerHTML=strDiv;
-	}
-	createSmallImg();
+		lesgo();
+	},false);
+	//下一张按钮
+	oNext.addEventListener('click',function(){
+		if(iNow2==iOlLiLen-1){
+			iNow2=0;
+		}else{
+			iNow2++;
+		}
+		lesgo();
+	},false);
+	
 },false);
 </script>
 </head>
@@ -106,6 +122,8 @@ document.addEventListener('DOMContentLoaded',function(){
     </div>
     <ol class="ol">
     	<li></li>
+        <li></li>
+        <li></li>
         <li></li>
         <li></li>
     </ol>
