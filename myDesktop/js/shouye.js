@@ -65,7 +65,7 @@ $(function(){
 			z==$iconLiLen&&(clearInterval(timer));
 		},num);
 	}
-	chuShiData(66);
+	//chuShiData(66);
 	
 	//窗口改变
 	function resetWeiZhi(){
@@ -1417,11 +1417,13 @@ $(function(){
 				$progressBarSpan.html(parseInt(iNow/$imgArr.length*100)+'%');
 				if(iNow==$imgArr.length){
 					$progressBar.css('display','none');
+					chuShiData(66);
 				}
 			}
 			tempImg.onerror=function(){
-				alert('有的图片加载失败，请确定直接进入。');
+				alert('部分图片加载失败，请确定直接进入网站!!');
 				$progressBar.css('display','none');
+				chuShiData(66);
 			}
 		}
 		imgLoad();
