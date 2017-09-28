@@ -1404,7 +1404,7 @@ $(function(){
 		$progressBar.on('contextmenu',function(){return false;});
 		var $progressBarSpan=$progressBar.find('span');
 		var $desktop=$('#desktop');
-		var $imgArr=['img/1.png','img/3.png','img/6.png','img/4.png','img/5.png','img/big-bg3.jpg','img/7.png','img/8.png','img/9.png','img/10.png'];
+		var $imgArr=['img/1.png','img/3.png','img/6.png','img/4.png','img/5.png','img/menu-right.gif','xiao.jpg','bg_close.png','start.png','img/big-bg3.jpg','img/7.png','img/8.png','img/9.png','img/10.png'];
 		var tempImg=new Image();
 		var iNow=0;
 		function imgLoad(){
