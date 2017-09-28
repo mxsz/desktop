@@ -1399,25 +1399,31 @@ $(function(){
 	})(jQuery);
 	
 	//网页图片进度条
-	/*(function($){
+	(function($){
 		var $progressBar=$('#progress_bar');
+		$progressBar.on('contextmenu',function(){return false;});
 		var $progressBarSpan=$progressBar.find('span');
 		var $desktop=$('#desktop');
-		var $imgsNow=0;
-		var $imgArr=['img/1.png','img/4.png','img/5.png','img/7.png','img/8.png','img/9.png','img/10.png','img/body-bg3.jpg'];
-		for(var i=0;i<$imgArr.length;i++){
-			(function(i){
-				var tempImg=new Image();
-				tempImg.src=$imgArr[i];
-				tempImg.onload=function(){
-					$imgsNow++;
-					$progressBarSpan.html(parseInt($imgsNow/$imgArr.length*100)+'%');
-					if($imgsNow==$imgArr.length){
-						$progressBar.css('display','none');
-						//$desktop.css('opacity',0).animate({opacity:1});
-					}
-				};
-			})(i);		
+		var $imgArr=['img/1.png','img/3.png','img/6.png','img/4.png','img/5.png','img/big-bg3.jpg','img/7.png','img/8.png','img/9.png','img/10.png'];
+		var tempImg=new Image();
+		var iNow=0;
+		function imgLoad(){
+			tempImg.src=$imgArr[iNow];
+			tempImg.onload=function(){
+				iNow++;
+				if(iNow<$imgArr.length){
+					imgLoad();
+				}
+				$progressBarSpan.html(parseInt(iNow/$imgArr.length*100)+'%');
+				if(iNow==$imgArr.length){
+					$progressBar.css('display','none');
+				}
+			}
+			tempImg.onerror=function(){
+				$progressBar.css('display','none');
+				alert('图片加载不成功')
+			}
 		}
-	})(jQuery);*/
+		imgLoad();
+	})(jQuery);
 });
