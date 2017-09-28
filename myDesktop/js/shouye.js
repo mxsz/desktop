@@ -1420,8 +1420,8 @@ $(function(){
 				}
 			}
 			tempImg.onerror=function(){
-				$progressBar.css('display','none');
-				alert('图片加载不成功')
+				//$progressBar.css('display','none');
+				//alert('图片加载不成功')
 			}
 		}
 		imgLoad();
