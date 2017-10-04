@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+img{vertical-align:middle;}
+a{text-decoration:none;}
+table{border-collapse:collapse;}
+ul,ol{list-style:none;}
+input,button,select,textarea{outline:none;}
+
+body,html{width:100%;height:100%;overflow:hidden;}
+#header,#footer{width:100%;height:30px;text-align:center;line-height:30px;border:1px solid pink;box-sizing:border-box;font-size:14px;position:absolute;}
+#header{top:0;}
+#footer{bottom:0;}
+#section{width:100%;position:absolute;top:30px;bottom:30px;overflow:hidden;}
+.ul{width:100%;background:#0CF;}
+.ul li{width:100%;height:40px;text-indent:10px;line-height:40px;font-size:14px;color:#333;border-bottom:1px dashed #CCC;box-sizing:border-box;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oUl=document.querySelectorAll('.ul')[0];
+	var oSection=document.getElementById('section');
+	for(var i=0;i<100;i++){
+		var oLi=document.createElement('li');
+		oLi.innerHTML='我是第'+(i+1)+'个li';
+		oUl.appendChild(oLi);
+	}
+	var oSectionHeight=oSection.clientHeight;
+	var oUlHieght=oUl.clientHeight;
+	var iChaZhi=oUlHieght-oSectionHeight;
+	var disX=0;
+	var disY=0;
+	var moveX=0;
+	var moveY=0;
+	var iNowX=0;
+	var iNowY=0;
+	var lastX=0;
+	var lastY=0;
+	var iSpeedX=0;
+	var iSpeedY=0;
+	document.addEventListener('touchstart',function(e){
+		disX=e.touches[0].pageX;
+		disY=e.touches[0].pageY;
+		iNowX=moveX;
+		iNowY=moveY;
+		oUl.style.transition='none';
+		oUl.addEventListener('touchmove',moveFn,false);
+		oUl.addEventListener('touchend',endFn,false);
+		e.preventDefault();
+	},false);
+	function moveFn(e){
+		moveX=e.touches[0].pageX-disX+iNowX;
+		moveY=e.touches[0].pageY-disY+iNowY;
+		if(moveY>0){
+			moveY=moveY/3;
+		}else if(-moveY>iChaZhi){
+			//moveY=-iChaZhi+(e.touches[0].pageY-disY)/3;
+		}
+		iSpeedX=e.touches[0].pageX-lastX;
+		iSpeedY=e.touches[0].pageY-lastY;
+		lastX=e.touches[0].pageX;
+		lastY=e.touches[0].pageY;
+		oUl.style.transform='translate3d(0,'+moveY+'px,0)';
+	}
+	function endFn(){
+		if(moveY>0){
+			moveY=0;
+		}else if(-moveY>iChaZhi){
+			moveY=-iChaZhi;		
+		}else{
+			moveY=moveY+iSpeedY*25;
+			if(-moveY>iChaZhi){
+				moveY=-iChaZhi;
+			}else if(moveY>0){
+				moveY=0;
+			}
+		}
+		oUl.style.transition=oUl.style.WebkitTransition='0.5s';		
+		oUl.style.transform='translate3d(0,'+moveY+'px,0)';
+		oUl.removeEventListener('touchmove',moveFn,false);
+		oUl.removeEventListener('touchend',endFn,false);
+	}
+},false);
+</script>
+</head>
+<body>
+<header id="header">我是头部</header>
+<section id="section">
+	<ul class="ul"></ul>
+</section>
+<footer id="footer">我是尾部</footer>
+</body>
+</html>
