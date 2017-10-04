@@ -79,8 +79,10 @@ document.addEventListener('DOMContentLoaded',function(){
 				moveY=0;
 			}
 		}
-		oUl.style.transition=oUl.style.WebkitTransition='0.5s';		
-		oUl.style.transform='translate3d(0,'+moveY+'px,0)';
+		oUl.style.transition=oUl.style.WebkitTransition='0.5s';	
+		setTimeout(function(){
+			oUl.style.transform='translate3d(0,'+moveY+'px,0)';
+		},1)
 		oUl.removeEventListener('touchmove',moveFn,false);
 		oUl.removeEventListener('touchend',endFn,false);
 	}
