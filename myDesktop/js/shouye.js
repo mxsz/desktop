@@ -1245,6 +1245,340 @@ $(function(){
 		$puzzleUl.on('mousedown',stopPropagation);
 	}
 	
+	//桌面日历html/js
+	function riliHtml(){
+		return ['<div id="rili">',
+					'<div class="rili-nianfen">',
+						'<ul class="rili-nianfen-ul">',
+							'<li class="rili-li1"><span></span><em></em><i></i></li>',
+							'<li class="rili-li2">年</li>',
+							'<li class="rili-li3"><span></span><em></em><i></i></li>',
+							'<li class="rili-li2">月</li>',
+							'<li class="rili-li3"><span></span><em></em><i></i></li>',
+							'<li class="rili-li2">日</li>',
+						'</ul>',
+					'</div>',
+					'<div class="rili-tiaozhuang">',
+						'<input type="text" placeholder="日期格式：2017-9-10" class="text">',
+						'<input type="button" value="跳转" class="button">',
+						'<button>此年月份</button>',
+						'<button>时钟</button>',
+						'<button>返回今天</button>',
+					'</div>',
+					'<div class="rili-shizhong">',
+						'<a href="javascript:;" class="close">×</a>',
+						'<div class="clock"></div>',
+					'</div>',
+					'<div class="rili-yuefen">',
+						'<a href="javascript:;" class="close">返回</a>',
+					'</div>',
+				'</div>'].join('');
+	}
+	function riliJs(){
+		var oRili=document.getElementById('rili');
+		var oRiliUl=getClass(oRili,'rili-nianfen-ul','ul')[0];
+		var oRiliUlSpan=oRiliUl.getElementsByTagName('span');
+		var oRiliUlLi=oRiliUl.getElementsByTagName('li');
+		var oRiliUlEm=oRiliUl.getElementsByTagName('em');
+		var oRiliUlI=oRiliUl.getElementsByTagName('i');
+		var oRiliTiaoZhuang=getClass(oRili,'rili-tiaozhuang','div')[0];
+		var oRiliText=oRiliTiaoZhuang.getElementsByTagName('input');
+		var oRiliButton=oRiliTiaoZhuang.getElementsByTagName('button');
+		var oRiliShiZhong=getClass(oRili,'rili-shizhong','div')[0];
+		var oRiliClose=getClass(oRiliShiZhong,'close','a')[0];
+		var oRiliClock=getClass(oRiliShiZhong,'clock','div')[0];
+		var oRiliYueFen=getClass(oRili,'rili-yuefen','div')[0];
+		var oRiliYueFenClose=getClass(oRiliYueFen,'close','a')[0];
+		var iNowDay=null;//保存今天的节点
+		//获取时间对象(服务器返回的时间，这里用本地的)
+		var oDate=new Date();
+		var year=oDate.getFullYear();
+		var month=oDate.getMonth()+1;
+		var day=oDate.getDate();
+		var year2=year;
+		var month2=month;
+		var day2=day;
+		//给前六个按钮加事件
+		for(var i=0;i<oRiliUlEm.length;i++){
+			oRiliUlEm[i].index=i;
+			oRiliUlI[i].index=i;
+			oRiliUlEm[i].onclick=function(){
+				if(this.index==0){
+					year++;
+				}else if(this.index==1){
+					if(month==12){
+						month=1;
+						year++;
+					}else{
+						month++;
+					}
+				}else if(this.index==2){
+					if(day==isMonthDay(year,month)){
+						if(month==12){
+							month=1;
+							year++;
+						}else{
+							month++;
+						}	
+						day=1;
+					}else{
+						day++;
+					}
+				}
+				setYTD(year,month,day);
+			};
+			oRiliUlI[i].onclick=function(){
+				if(this.index==0){
+					if(year==1){
+						alert('不能再减啦!!')
+					}else{
+						year--;
+					}				
+				}else if(this.index==1){
+					if(month==1){
+						if(year==1){
+							alert('不能再减啦!!')
+						}else{						
+							month=12;
+							year--;
+						}
+					}else{
+						month--;
+					}
+				}else if(this.index==2){
+					if(day==1){
+						if(year==1&&month==1){
+							alert('不能再减啦!!')
+						}else{
+							if(month==1){
+								month=12;
+								year--;
+							}else{
+								month--;
+							}
+							day=isMonthDay(year,month);
+						}					
+					}else{
+						day--;
+					}				
+				}
+				setYTD(year,month,day);
+			};
+		}
+		//给后四个按钮加事件
+		oRiliText[1].onclick=function(){
+			var value=oRiliText[0].value.replace(/^\s*|\s*$/g,'');
+			var re=/^\d{1,4}-\d{1,2}-\d{1,2}$/;
+			if(re.test(value)){
+				var arr=value.split('-');
+				if(arr[1]<1||arr[1]>12||arr[2]<1||arr[2]>isMonthDay(arr[0],arr[1])){
+					alert('请输入正确的日期格式!!')
+				}else{
+					setYTD(arr[0],arr[1],arr[2],tBodyTd);
+					year=arr[0];
+					month=arr[1];
+					day=arr[2];
+				}		
+			}else{
+				alert('请输入正确的日期格式!!')
+			}
+		};
+		var prevYear=0;
+		oRiliButton[0].onclick=function(){//此年月份
+			oRiliYueFen.style.display='block';
+			if(oRiliYueFen.children.length==1){
+				var tableArr2=['日','一','二','三','四','五','六'];
+				for(var i=0;i<12;i++){
+					createTable(tableArr2,oRiliYueFen,oRiliYueFenClose);
+				}
+				oRiliYueFenClose.onclick=function(){
+					oRiliYueFen.style.display='none';
+				};
+			}
+			if(prevYear!=year){
+				function setYuefen(year,month,tBodyTd){
+					//清空单元格的文字
+					for(var i=0;i<tBodyTd.length;i++){
+						tBodyTd[i].innerHTML='';
+					}
+					//设置年月日
+					var oDate=new Date()
+					oDate.setFullYear(year);
+					oDate.setMonth(month-1);
+					oDate.setDate(1);
+					//给td添加号数		
+					for(var i=0;i<isMonthDay(year,month);i++){
+						tBodyTd[i+oDate.getDay()].innerHTML=i+1;
+					}
+				}
+				for(var i=0;i<12;i++){
+					var tBodyTd=oRiliYueFen.getElementsByTagName('table')[i].getElementsByTagName('td');
+					setYuefen(year,i+1,tBodyTd);
+				}
+			}
+			prevYear=year;
+		};
+		oRiliButton[1].onclick=function(){//时钟
+			oRiliShiZhong.style.display='block';
+			if(!oRiliClock.children.length){
+				oRiliClose.onclick=function(){
+					oRiliShiZhong.style.display='none';
+				};
+				if(oRiliClock.style.transform===undefined)return;
+				var htmlClock='<div class="second"></div><div class="minute"></div><div class="hour"></div><div class="icon1"></div>';
+				for(var i=0;i<60;i++){
+					htmlClock+='<span style="-webkit-transform:rotate('+i*6+'deg);-moz-transform:rotate('+i*6+'deg);transform:rotate('+i*6+'deg);"></span>';
+				}
+				oRiliClock.innerHTML+=htmlClock;
+				var oRiliClockSecond=getClass(oRiliClock,'second','div')[0];
+				var oRiliClockMinute=getClass(oRiliClock,'minute','div')[0];
+				var oRiliClockHour=getClass(oRiliClock,'hour','div')[0];
+				function toTime(){
+					var oDate=new Date();	
+					var iSecond=oDate.getSeconds();
+					var iMinute=oDate.getMinutes()+iSecond/60;
+					var iHour=oDate.getHours()+iMinute/60;
+					oRiliClockSecond.style.transform='rotate('+iSecond*6+'deg)';
+					oRiliClockMinute.style.transform='rotate('+iMinute*6+'deg)';
+					oRiliClockHour.style.transform='rotate('+iHour*30+'deg)';
+				}
+				toTime();
+				setInterval(toTime,1000);
+			}
+		};
+		oRiliButton[2].onclick=function(){//返回今天
+			setYTD(year2,month2,day2);
+			year=year2;
+			month=month2;
+			day=day2;
+		};
+		//创建表格
+		var tableArr=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+		createTable(tableArr,oRili,oRiliTiaoZhuang);
+		function createTable(tableArr,parent,prevElem){
+			var table=document.createElement('table');
+			addClass(table,'rili-table');
+			var tHead=table.createTHead();
+			var tBody=document.createElement('tBody');
+			var tHeadTr=tHead.insertRow(0);		
+			for(var i=0;i<7;i++){		
+				var tHeadTrTh=document.createElement('th');
+				tHeadTrTh.innerHTML=tableArr[i];
+				if(i==0){
+					addClass(tHeadTrTh,'rili-t-color');
+				}else if(i==6){
+					addClass(tHeadTrTh,'rili-b-color');
+				}
+				tHeadTr.appendChild(tHeadTrTh);
+			}
+			for(var i=0;i<6;i++){
+				var tBodyTr=document.createElement('tr');
+				for(var j=0;j<7;j++){
+					var tBodyTrTd=document.createElement('td');
+					if(j==0){
+						addClass(tBodyTrTd,'rili-t-color');
+					}else if(j==6){
+						addClass(tBodyTrTd,'rili-b-color');
+					}
+					tBodyTr.appendChild(tBodyTrTd);
+				}
+				tBody.appendChild(tBodyTr);
+			}
+			table.appendChild(tBody);
+			parent.insertBefore(table,prevElem);
+		}
+		//获取所有tBody里的td
+		var tBodyTd=oRili.getElementsByTagName('table')[0].getElementsByTagName('td');
+		//放置每月天数到单元格里
+		setYTD(year,month,day);
+		function setYTD(year,month,day){
+			//清空单元格的文字和今天的class
+			for(var i=0;i<tBodyTd.length;i++){
+				tBodyTd[i].innerHTML='';
+			}
+			iNowDay&&removeClass(iNowDay,'rili-bg-color');	
+			//当月天数		
+			var dayNum=isMonthDay(year,month);
+			//设置年月日
+			var oDate2=new Date()
+			oDate2.setFullYear(year);
+			oDate2.setMonth(month-1);
+			oDate2.setDate(1);
+			//给td添加号数		
+			for(var i=0;i<dayNum;i++){
+				tBodyTd[i+oDate2.getDay()].innerHTML=i+1;
+				if(i+1==day){//给当前日加颜色
+					iNowDay=tBodyTd[i+oDate2.getDay()];
+					addClass(iNowDay,'rili-bg-color');
+				}
+			}
+			//给span添加年月日
+			oRiliUlSpan[0].innerHTML=year;
+			oRiliUlSpan[1].innerHTML=month;
+			oRiliUlSpan[2].innerHTML=day;
+		}
+		//一个月有几天
+		function isMonthDay(year,month){
+			var dayNum=0;
+			if(month==1||month==3||month==5||month==7||month==8||month==10||month==12){
+				dayNum=31;
+			}else if(month==4||month==6||month==9||month==11){
+				dayNum=30;
+			}else if(month==2&&(year%4==0&&year%100!=0||year%400==0)){
+				dayNum=29;
+			}else{
+				dayNum=28;
+			}
+			return dayNum;
+		}
+		
+		//日历拖拽
+		Drag({
+			id:$('#rili'),
+			xz:true,
+			resize:true,
+			fnDown:function(This){
+				This.css('z-index',++zIndex);
+			}
+		});
+		
+		/*class相关操作，如果用jq，可以删除*/
+		function getClass(parent,sClass,tagName){
+			var arr=[];
+			if(parent.getElementsByClassName){
+				arr=parent.getElementsByClassName(sClass);
+			}else{
+				var result=parent.getElementsByTagName(tagName);
+				for(var i=0;i<result.length;i++){
+					if(new RegExp('\\b'+sClass+'\\b').test(result[i].className)){
+						arr.push(result[i]);
+					}
+				}
+			}
+			return arr;
+		}
+		function addClass(elem,sClass){
+			if(elem.className==''){
+				elem.className=sClass;
+			}else{
+				var aClass=sClass.split(' ');
+				for(var i=0;i<aClass.length;i++){
+					if(elem.className.search(new RegExp("\\b"+aClass[i]+"\\b"))==-1){
+						elem.className+=' '+aClass[i];
+					}
+				}
+			}
+		}
+		function removeClass(elem,sClass){
+			var aClass=sClass.split(' ');
+			if(elem.className!=''){
+				for(var i=0;i<aClass.length;i++){
+					elem.className=elem.className.replace(new RegExp('\\s*\\b'+aClass[i]+'\\b','g'),'');
+				}
+			}
+		}		
+	}
+		
 	//右侧隐藏栏
 	(function($){
 		var $rightBar=$('#right-bar');
