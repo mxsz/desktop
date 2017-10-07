@@ -1541,6 +1541,7 @@ $(function(){
 				This.css('z-index',++zIndex);
 			}
 		});
+		$(oRiliTiaoZhuang).on('mousedown',function(e){e.stopPropagation();});
 		
 		/*class相关操作，如果用jq，可以删除*/
 		function getClass(parent,sClass,tagName){
