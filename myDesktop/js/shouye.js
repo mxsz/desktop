@@ -1641,6 +1641,14 @@ $(function(){
 					});
 					puzzleJs();
 				}
+				if(!$('#rili')[0]&&This.attr('now')=='rili'){//创建日历
+					$tool.append(riliHtml());
+					$('#rili').css({
+						left:l,
+						top:t
+					});
+					riliJs();
+				}
 			});
 			return false;
 		});
