@@ -4,5 +4,6 @@
 ul,ol{list-style:none;}
 img{vertical-align:middle;}
 a{text-decoration:none;}
-input,textarea{outline:none;}
+input,textarea,button,select{outline:none;}
+table{border-collapse:collapse;}
 
