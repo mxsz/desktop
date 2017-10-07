@@ -1408,7 +1408,6 @@ $(function(){
 		var tempImg=new Image();
 		var iNow=0;
 		function imgLoad(){
-			tempImg.src=$imgArr[iNow];
 			tempImg.onload=function(){				
 				iNow++;
 				if(iNow<$imgArr.length){
@@ -1420,6 +1419,7 @@ $(function(){
 					chuShiData(66);
 				}
 			}
+			tempImg.src=$imgArr[iNow];
 			tempImg.onerror=function(){
 				alert('部分图片加载失败，请确定直接进入网站!!');
 				$progressBar.css('display','none');
