@@ -1585,6 +1585,1284 @@ $(function(){
 			}
 		}		
 	}
+	
+	//桌面贪吃蛇html/js
+	function snakeHtml(){
+		return ['<div id="panel">',
+					'<div id="ss-option">',
+						'<h3 id="ss-title">贪吃蛇</h3>',
+						'<p id="ss-start">开始</p>',
+						'<p id="ss-menu">设置</p>',
+						'<p id="ss-rule">规则</p>',
+						'<div class="ss-comm ss-mode">',
+							'<h4>请选择模式</h4>',
+							'<i class="ss-close">×</i>',
+							'<span>经典模式</span>',
+							'<span>算数模式</span>',
+							'<span>关卡模式</span>',
+						'</div>',
+						'<div class="ss-comm ss-set">',
+							'<i class="ss-close">×</i>',
+							'<div class="ss-set-speed">',
+								'<span>经典模式<i></i></span>',
+								'<ul>',
+									'<li>经典模式</li>',
+									'<li>算数模式</li>',
+									'<li>关卡模式</li>',
+								'</ul>',
+							'</div>',
+							'<ul class="ss-set-gexiang" style="display:block;">',
+								'<li>',
+									'<label>蛇爬行速度：</label>',
+									'<select class="ss-set-select">',
+										'<option value="1">1</option>',
+										'<option value="2">2</option>',
+										'<option value="3">3</option>',
+										'<option value="4" selected>4</option>',
+										'<option value="5">5</option>',
+									'</select>',
+								'</li>',
+							'</ul>',
+							'<ul class="ss-set-gexiang">',
+								'<li>',
+									'<label>蛇爬行速度：</label>',
+									'<select class="ss-set-select">',
+										'<option value="1">1</option>',
+										'<option value="2">2</option>',
+										'<option value="3">3</option>',
+										'<option value="4" selected>4</option>',
+										'<option value="5">5</option>',
+									'</select>',
+								'</li>',
+							'</ul>',
+							'<ul class="ss-set-gexiang">',
+								'<li>',
+									'<label>蛇爬行速度：</label>',
+									'<select class="ss-set-select">',
+										'<option value="1">1</option>',
+										'<option value="2">2</option>',
+										'<option value="3" selected>3</option>',
+										'<option value="4">4</option>',
+										'<option value="5">5</option>',
+									'</select>',
+								'</li>',
+							'</ul>',
+						'</div>',
+						'<div class="ss-comm ss-introduce">',
+							'<i class="ss-close">×</i>',
+							'<ul>',
+								'<li>经典模式：四面不可穿过，蛇占满全屏游戏过关。</li>',
+								'<li>算数模式：四面不可穿过</li>',
+								'<li>关卡模式：四面可穿过，通过最后一关卡游戏过关。</li>',
+							'</ul>',
+						'</div>',
+					'</div>',
+					'<div id="ss-interface">',
+						'<h4></h4>',
+						'<p>分数：<span>0</span></p>',
+						'<ul id="snake"></ul>',
+					'</div>',
+				'</div>'].join('');
+	}
+	function snakeJs(){
+		var oPanel=document.getElementById('panel');
+		var oOption=document.getElementById('ss-option');
+		var aP=oOption.getElementsByTagName('p');
+		var aDiv=getClass(oOption,'ss-comm','div');
+		var aClose=getClass(oOption,'ss-close','i');
+		var aStartSpan=aDiv[0].getElementsByTagName('span');
+		var oInterface=document.getElementById('ss-interface')	
+		var aH4=oInterface.getElementsByTagName('h4')[0];
+		var oSetSpeed=getClass(oPanel,'ss-set-speed','div');
+		var aSetSpeedSpan=oSetSpeed[0].getElementsByTagName('span')[0];
+		var aSetSpeedUl=oSetSpeed[0].getElementsByTagName('ul')[0];
+		var aSetSpeedUlLi=aSetSpeedUl.getElementsByTagName('li');
+		var aSetGexiang=getClass(oPanel,'ss-set-gexiang','ul');
+		var aSetSelect=getClass(oPanel,'ss-set-select','select');
+		var aSetOptions=oPanel.getElementsByTagName('option');	
+		var aSpan=oInterface.getElementsByTagName('span')[0];
+		var oSnake=document.getElementById('snake');
+		var row=15;//地图多少行
+		var col=30;//地图多少列
+		var num=3;//蛇的初始长度
+		var iSpeed=150;//蛇的运动速度
+		var dir='l';//蛇的运动方向左
+		var aSnake=[];//保存蛇每一节信息
+		var iNow=0;//食物计数
+		var gameMode=0;//游戏模式
+		var timer=null;//引用定时器
+		oSnake.style.cssText='width:'+col*20+'px;height:'+row*20+'px;';
+		//界面三个按钮
+		for(var i=0;i<aP.length;i++){
+			aP[i].index=i;
+			aClose[i].index=i;
+			aP[i].onclick=function(){
+				aDiv[this.index].style.display='block';
+			};
+			aClose[i].onclick=function(){
+				aDiv[this.index].style.display='none';
+			};
+		}
+		//开始选择模式
+		for(var i=0;i<aStartSpan.length;i++){
+			aStartSpan[i].type=i;
+			aStartSpan[i].onclick=function(){
+				gameMode=this.type;
+				aH4.innerHTML=this.innerHTML;
+				oOption.style.display='none';
+				startFn();
+				//速度控制
+				switch(aSetSelect[gameMode].value){
+					case '1':
+						iSpeed=300;
+						break;
+					case '2':
+						iSpeed=200;
+						break;
+					case '3':
+						iSpeed=150;
+						break;
+					case '4':
+						iSpeed=100;
+						break;
+					case '5':
+						iSpeed=50;
+						break;
+				}
+			};
+		}
+		//设置相关
+		var bBtnUl=true;
+		aSetSpeedSpan.onclick=function(){
+			if(bBtnUl){
+				aSetSpeedUl.style.display='block';
+				this.style.borderRadius='6px 6px 0 0';
+			}else{
+				aSetSpeedUl.style.display='none';
+				this.style.borderRadius='6px';
+			}
+			bBtnUl=!bBtnUl;	
+		};
+		for(var i=0;i<aSetSpeedUlLi.length;i++){
+			aSetSpeedUlLi[i].index=i;
+			aSetSpeedUlLi[i].onclick=function(){
+				aSetSpeedSpan.innerHTML=this.innerHTML+'<i></i>';
+				aSetSpeedUl.style.display='none';
+				aSetSpeedSpan.style.borderRadius='6px';
+				bBtnUl=true;
+				for(var i=0;i<aSetSpeedUlLi.length;i++){
+					aSetGexiang[i].style.display='none';
+				}
+				aSetGexiang[this.index].style.display='block';
+			}
+		}
+		//生产蛇
+		function createSnake(){
+			for(var i=0;i<num;i++){
+				var oLi=document.createElement('li');
+				aSnake[i]={
+					elem:oLi,
+					dir:dir,
+					l:Math.round((col-num)/2)+i,
+					t:Math.round((row-1)/2)			
+				};
+				setPos(aSnake[i]);
+				oSnake.appendChild(oLi);
+			}
+			aSnake[0].elem.className='st stl';
+			aSnake[aSnake.length-1].elem.className='sw swl';
+		}
+		//生产吃的
+		function createFood(num,bColor){
+			if(typeof num!=='number'&&num){
+				bColor=num;
+			}else{
+				num=num||1;
+			}		
+			createFood.node=[];
+			while(createFood.node.length<num){
+				var l=parseInt(Math.random()*col);
+				var t=parseInt(Math.random()*row);
+				var bBtn=true;
+				var bgc=bColor?'ff2f20':randomColor();
+				for(var i=0;i<aSnake.length;i++){		//蛇
+					l==aSnake[i].l&&t==aSnake[i].t&&(bBtn=false);
+				}
+				for(var i=0;i<createFood.node.length;i++){		//食物
+					l==createFood.node[i].l&&t==createFood.node[i].t&&(bBtn=false);
+				}
+				if(gameMode==2){	//关卡障碍物
+					for(var i=0;i<map[map.guanCount].length;i++){
+						l==map[map.guanCount][i].l&&t==map[map.guanCount][i].t&&(bBtn=false);
+					}
+				}
+				if(bBtn){
+					var oLi=document.createElement('li');
+					oLi.style.cssText='left:'+l*20+'px;top:'+t*20+'px;background:#'+bgc+';';
+					oLi.className='boxshadow';
+					oSnake.appendChild(oLi);
+					createFood.node.push({l:l,t:t,elem:oLi});
+				}
+			}
+		}
+		//食物添加随机符号和数字
+		function randomRount(obj){
+			var symbolArr=['+','-','='];
+			var randomArr=[];
+			while(randomArr.length<6){
+				var bBtn=true;
+				var iRandom=parseInt(Math.random()*9)+1;
+				for(var i=0;i<randomArr.length;i++){
+					randomArr[i]==iRandom&&(bBtn=false);
+				}
+				bBtn&&randomArr.push(iRandom);
+			}
+			var newArr=symbolArr.concat(randomArr);
+			for(var i=0;i<obj.length-1;i++){			
+				obj[i].elem.innerHTML=newArr[i];
+			}
+			switch(symbolArr[parseInt(Math.random()*2)]){
+				case '+':
+					obj[obj.length-1].elem.innerHTML=randomArr[0]+randomArr[1];
+					break;
+				case '-':
+					obj[obj.length-1].elem.innerHTML=randomArr[0]-randomArr[1];
+					break;
+			}		
+		}
+		var map={
+			1:[
+				{l:13,t:8},
+				{l:13,t:9},
+				{l:13,t:10},
+				{l:13,t:11},
+				{l:13,t:12},
+				{l:13,t:13},
+				{l:13,t:14},
+				{l:16,t:8},
+				{l:16,t:9},
+				{l:16,t:10},
+				{l:16,t:11},
+				{l:16,t:12},
+				{l:16,t:13},
+				{l:16,t:14},
+				{l:3,t:12},
+				{l:4,t:12},
+				{l:5,t:12},
+				{l:6,t:12},
+				{l:7,t:12},
+				{l:8,t:12},
+				{l:9,t:12}
+			],
+			2:[
+				{l:0,t:0},
+				{l:1,t:0},
+				{l:2,t:0},
+				{l:3,t:0},
+				{l:4,t:0},
+				{l:5,t:0},
+				{l:6,t:0},
+				{l:0,t:1},
+				{l:0,t:2},
+				{l:0,t:3},
+				{l:23,t:0},
+				{l:24,t:0},
+				{l:25,t:0},
+				{l:26,t:0},
+				{l:27,t:0},
+				{l:28,t:0},
+				{l:29,t:0},
+				{l:29,t:1},
+				{l:29,t:2},
+				{l:29,t:3},
+				{l:0,t:11},
+				{l:0,t:12},
+				{l:0,t:13},
+				{l:0,t:14},
+				{l:1,t:14},
+				{l:2,t:14},
+				{l:3,t:14},
+				{l:4,t:14},
+				{l:5,t:14},
+				{l:6,t:14},
+				{l:23,t:14},
+				{l:24,t:14},
+				{l:25,t:14},
+				{l:26,t:14},
+				{l:27,t:14},
+				{l:28,t:14},
+				{l:29,t:14},
+				{l:29,t:13},
+				{l:29,t:12},
+				{l:29,t:11}
+			],
+			3:[
+				{l:0,t:0},
+				{l:0,t:1},
+				{l:0,t:2},
+				{l:0,t:3},
+				{l:0,t:4},
+				{l:0,t:5},
+				{l:0,t:9},
+				{l:0,t:10},
+				{l:0,t:11},
+				{l:0,t:12},
+				{l:0,t:13},
+				{l:0,t:14},			
+				{l:1,t:0},
+				{l:2,t:0},
+				{l:3,t:0},
+				{l:4,t:0},
+				{l:5,t:0},
+				{l:6,t:0},
+				{l:7,t:0},
+				{l:8,t:0},
+				{l:9,t:0},
+				{l:10,t:0},
+				{l:11,t:0},
+				{l:12,t:0},
+				{l:13,t:0},
+				{l:16,t:0},
+				{l:17,t:0},
+				{l:18,t:0},
+				{l:19,t:0},
+				{l:20,t:0},
+				{l:21,t:0},
+				{l:22,t:0},
+				{l:23,t:0},
+				{l:24,t:0},
+				{l:25,t:0},
+				{l:26,t:0},
+				{l:27,t:0},
+				{l:28,t:0},
+				{l:29,t:0},
+				{l:29,t:1},
+				{l:29,t:2},
+				{l:29,t:3},
+				{l:29,t:4},
+				{l:29,t:5},
+				{l:29,t:9},
+				{l:29,t:10},
+				{l:29,t:11},
+				{l:29,t:12},
+				{l:29,t:13},
+				{l:29,t:14},			
+				{l:28,t:14},
+				{l:27,t:14},
+				{l:26,t:14},
+				{l:25,t:14},
+				{l:24,t:14},
+				{l:23,t:14},
+				{l:22,t:14},
+				{l:21,t:14},
+				{l:20,t:14},
+				{l:19,t:14},
+				{l:18,t:14},
+				{l:17,t:14},
+				{l:16,t:14},
+				{l:13,t:14},
+				{l:12,t:14},
+				{l:11,t:14},
+				{l:10,t:14},
+				{l:9,t:14},
+				{l:8,t:14},
+				{l:7,t:14},
+				{l:6,t:14},
+				{l:5,t:14},
+				{l:4,t:14},
+				{l:3,t:14},
+				{l:2,t:14},
+				{l:1,t:14},
+				{l:10,t:6},
+				{l:11,t:6},
+				{l:12,t:6},
+				{l:13,t:6},
+				{l:16,t:6},
+				{l:17,t:6},
+				{l:18,t:6},
+				{l:19,t:6},			
+				{l:10,t:8},
+				{l:11,t:8},
+				{l:12,t:8},
+				{l:13,t:8},
+				{l:16,t:8},
+				{l:17,t:8},
+				{l:18,t:8},
+				{l:19,t:8}
+			],
+			4:[
+				{l:7,t:4},
+				{l:7,t:5},
+				{l:8,t:4},
+				{l:9,t:4},
+				{l:10,t:4},
+				{l:11,t:4},
+				{l:12,t:4},
+				{l:13,t:4},
+				{l:14,t:4},
+				{l:15,t:4},
+				{l:16,t:4},
+				{l:17,t:4},
+				{l:18,t:4},
+				{l:19,t:4},
+				{l:20,t:4},
+				{l:21,t:4},
+				{l:22,t:4},
+				{l:22,t:5},			
+				{l:7,t:9},
+				{l:7,t:8},
+				{l:7,t:10},
+				{l:7,t:11},
+				{l:7,t:12},
+				{l:7,t:13},
+				{l:8,t:9},
+				{l:9,t:9},
+				{l:10,t:9},
+				{l:11,t:9},
+				{l:12,t:9},
+				{l:13,t:9},
+				{l:14,t:9},
+				{l:15,t:9},
+				{l:16,t:9},
+				{l:17,t:9},
+				{l:18,t:9},
+				{l:19,t:9},
+				{l:20,t:9},
+				{l:21,t:9},
+				{l:22,t:8},
+				{l:22,t:9}
+			],
+			5:[
+				{l:3,t:1},
+				{l:3,t:2},
+				{l:3,t:3},
+				{l:3,t:4},
+				{l:3,t:5},
+				{l:3,t:6},
+				{l:3,t:7},
+				{l:3,t:8},
+				{l:3,t:9},
+				{l:3,t:10},
+				{l:3,t:11},
+				{l:3,t:12},
+				{l:3,t:13},
+				{l:3,t:14},
+				{l:2,t:14},
+				{l:1,t:14},
+				{l:0,t:14},			
+				{l:4,t:1},
+				{l:5,t:1},
+				{l:6,t:1},
+				{l:7,t:1},
+				{l:8,t:1},
+				{l:9,t:1},
+				{l:10,t:1},
+				{l:11,t:1},
+				{l:12,t:1},
+				{l:13,t:1},
+				{l:14,t:1},
+				{l:15,t:1},
+				{l:16,t:1},
+				{l:17,t:1},
+				{l:18,t:1},
+				{l:19,t:1},
+				{l:20,t:1},
+				{l:21,t:1},
+				{l:22,t:1},
+				{l:23,t:1},
+				{l:24,t:1},
+				{l:25,t:1},
+				{l:26,t:1},			
+				{l:26,t:2},
+				{l:26,t:3},
+				{l:26,t:4},
+				{l:26,t:5},
+				{l:26,t:6},
+				{l:26,t:7},
+				{l:26,t:8},
+				{l:26,t:9},
+				{l:26,t:10},
+				{l:26,t:11},
+				{l:26,t:12},
+				{l:27,t:12},
+				{l:28,t:12},			
+				{l:5,t:3},
+				{l:5,t:4},
+				{l:5,t:5},
+				{l:5,t:6},
+				{l:5,t:7},
+				{l:5,t:8},
+				{l:5,t:9},
+				{l:5,t:10},
+				{l:5,t:11},
+				{l:5,t:12},
+				{l:5,t:13},			
+				{l:24,t:3},
+				{l:24,t:4},
+				{l:24,t:5},
+				{l:24,t:6},
+				{l:24,t:7},
+				{l:24,t:8},
+				{l:24,t:9},
+				{l:24,t:10},
+				{l:24,t:11},
+				{l:24,t:12},
+				{l:24,t:13},
+				{l:24,t:14},
+				{l:25,t:14},
+				{l:26,t:14},
+				{l:27,t:14},
+				{l:28,t:14},
+				{l:29,t:14},			
+				{l:6,t:3},
+				{l:7,t:3},
+				{l:8,t:3},
+				{l:9,t:3},
+				{l:10,t:3},
+				{l:11,t:3},
+				{l:12,t:3},
+				{l:13,t:3},
+				{l:14,t:3},
+				{l:15,t:3},
+				{l:16,t:3},
+				{l:17,t:3},
+				{l:18,t:3},
+				{l:19,t:3},
+				{l:20,t:3},
+				{l:21,t:3},
+				{l:22,t:3},
+				{l:23,t:3}
+			],
+			6:[
+				{l:0,t:0},
+				{l:1,t:0},
+				{l:2,t:0},
+				{l:3,t:0},
+				{l:4,t:0},
+				{l:5,t:0},
+				{l:6,t:0},
+				{l:7,t:0},
+				{l:8,t:0},
+				{l:9,t:0},
+				{l:10,t:0},
+				{l:11,t:0},
+				{l:0,t:1},
+				{l:0,t:2},
+				{l:0,t:3},
+				{l:0,t:4},
+				{l:0,t:5},
+				{l:18,t:0},
+				{l:19,t:0},
+				{l:20,t:0},
+				{l:21,t:0},
+				{l:22,t:0},
+				{l:23,t:0},
+				{l:24,t:0},
+				{l:25,t:0},
+				{l:26,t:0},
+				{l:27,t:0},
+				{l:28,t:0},
+				{l:29,t:0},
+				{l:29,t:1},
+				{l:29,t:2},
+				{l:29,t:3},
+				{l:29,t:4},
+				{l:29,t:5},
+				{l:0,t:9},
+				{l:0,t:10},
+				{l:0,t:11},
+				{l:0,t:12},
+				{l:0,t:13},
+				{l:0,t:14},
+				{l:1,t:14},
+				{l:2,t:14},
+				{l:3,t:14},
+				{l:4,t:14},
+				{l:5,t:14},
+				{l:6,t:14},
+				{l:7,t:14},
+				{l:8,t:14},
+				{l:9,t:14},
+				{l:10,t:14},
+				{l:11,t:14},
+				{l:18,t:14},
+				{l:19,t:14},
+				{l:20,t:14},
+				{l:21,t:14},
+				{l:22,t:14},
+				{l:23,t:14},
+				{l:24,t:14},
+				{l:25,t:14},
+				{l:26,t:14},
+				{l:27,t:14},
+				{l:28,t:14},
+				{l:29,t:14},
+				{l:29,t:13},
+				{l:29,t:12},
+				{l:29,t:11},
+				{l:29,t:10},
+				{l:29,t:9},			
+				{l:3,t:2},
+				{l:4,t:2},
+				{l:5,t:2},
+				{l:6,t:2},
+				{l:7,t:2},
+				{l:3,t:3},
+				{l:4,t:3},
+				{l:5,t:3},
+				{l:6,t:3},
+				{l:7,t:3},
+				{l:3,t:4},
+				{l:4,t:4},
+				{l:5,t:4},
+				{l:6,t:4},
+				{l:7,t:4},			
+				{l:3,t:10},
+				{l:4,t:10},
+				{l:5,t:10},
+				{l:6,t:10},
+				{l:7,t:10},
+				{l:3,t:11},
+				{l:4,t:11},
+				{l:5,t:11},
+				{l:6,t:11},
+				{l:7,t:11},
+				{l:3,t:12},
+				{l:4,t:12},
+				{l:5,t:12},
+				{l:6,t:12},
+				{l:7,t:12},			
+				{l:22,t:10},
+				{l:23,t:10},
+				{l:24,t:10},
+				{l:25,t:10},
+				{l:26,t:10},
+				{l:22,t:11},
+				{l:23,t:11},
+				{l:24,t:11},
+				{l:25,t:11},
+				{l:26,t:11},
+				{l:22,t:12},
+				{l:23,t:12},
+				{l:24,t:12},
+				{l:25,t:12},
+				{l:26,t:12},			
+				{l:22,t:2},
+				{l:23,t:2},
+				{l:24,t:2},
+				{l:25,t:2},
+				{l:26,t:2},
+				{l:22,t:3},
+				{l:23,t:3},
+				{l:24,t:3},
+				{l:25,t:3},
+				{l:26,t:3},
+				{l:22,t:4},
+				{l:23,t:4},
+				{l:24,t:4},
+				{l:25,t:4},
+				{l:26,t:4},			
+				{l:10,t:5},
+				{l:11,t:5},
+				{l:12,t:5},
+				{l:13,t:5},
+				{l:14,t:5},
+				{l:15,t:5},
+				{l:16,t:5},
+				{l:17,t:5},
+				{l:18,t:5},
+				{l:19,t:5},		
+				{l:10,t:9},
+				{l:11,t:9},
+				{l:12,t:9},
+				{l:13,t:9},
+				{l:14,t:9},
+				{l:15,t:9},
+				{l:16,t:9},
+				{l:17,t:9},
+				{l:18,t:9},
+				{l:19,t:9}
+			],
+			7:[
+				{l:0,t:0},
+				{l:0,t:1},
+				{l:0,t:2},
+				{l:0,t:3},
+				{l:0,t:4},
+				{l:1,t:4},
+				{l:2,t:4},
+				{l:3,t:4},
+				{l:3,t:5},
+				{l:3,t:6},
+				{l:3,t:7},
+				{l:3,t:8},
+				{l:3,t:9},
+				{l:3,t:10},
+				{l:2,t:10},
+				{l:1,t:10},
+				{l:0,t:10},
+				{l:0,t:11},
+				{l:0,t:12},
+				{l:0,t:13},
+				{l:0,t:14},			
+				{l:1,t:0},
+				{l:2,t:0},
+				{l:3,t:0},
+				{l:4,t:0},
+				{l:5,t:0},
+				{l:6,t:0},
+	
+				{l:7,t:0},
+				{l:8,t:0},
+				{l:9,t:0},
+				{l:10,t:0},
+				{l:11,t:0},
+				{l:11,t:1},
+				{l:11,t:2},
+				{l:11,t:3},
+				{l:12,t:3},
+				{l:13,t:3},
+				{l:14,t:3},
+				{l:15,t:3},
+				{l:16,t:3},
+				{l:17,t:3},
+				{l:18,t:3},
+				{l:19,t:3},
+				{l:19,t:2},
+				{l:19,t:1},
+				{l:19,t:0},
+				{l:20,t:0},
+				{l:21,t:0},
+				{l:22,t:0},
+				{l:23,t:0},
+				{l:24,t:0},
+				{l:25,t:0},
+				{l:26,t:0},
+				{l:27,t:0},
+				{l:28,t:0},
+				{l:29,t:0},		
+				{l:1,t:14},
+				{l:2,t:14},
+				{l:3,t:14},
+				{l:4,t:14},
+				{l:5,t:14},
+				{l:6,t:14},
+				{l:7,t:14},
+				{l:8,t:14},
+				{l:9,t:14},
+				{l:10,t:14},
+				{l:11,t:14},
+				{l:19,t:14},
+				{l:20,t:14},
+				{l:21,t:14},
+				{l:22,t:14},
+				{l:23,t:14},
+				{l:24,t:14},
+				{l:25,t:14},
+				{l:26,t:14},
+				{l:27,t:14},
+				{l:28,t:14},
+				{l:29,t:14},
+				{l:29,t:13},
+				{l:29,t:12},
+				{l:29,t:11},
+				{l:29,t:10},
+				{l:29,t:4},
+				{l:29,t:3},
+				{l:29,t:2},
+				{l:29,t:1}
+			],
+			8:[
+				{l:0,t:0},
+				{l:1,t:0},
+				{l:2,t:0},
+				{l:3,t:0},
+				{l:4,t:0},
+				{l:5,t:0},
+				{l:6,t:0},
+				{l:7,t:0},
+				{l:8,t:0},
+				{l:9,t:0},
+				{l:10,t:0},
+				{l:11,t:0},
+				{l:12,t:0},
+				{l:13,t:0},
+				{l:14,t:0},
+				{l:15,t:0},
+				{l:16,t:0},
+				{l:17,t:0},
+				{l:18,t:0},
+				{l:19,t:0},
+				{l:20,t:0},
+				{l:21,t:0},
+				{l:22,t:0},
+				{l:23,t:0},
+				{l:24,t:0},
+				{l:25,t:0},
+				{l:26,t:0},
+				{l:27,t:0},
+				{l:28,t:0},
+				{l:29,t:0},
+				{l:29,t:1},
+				{l:29,t:2},
+				{l:29,t:3},
+				{l:29,t:4},
+				{l:29,t:5},
+				{l:29,t:6},
+				{l:29,t:7},
+				{l:29,t:8},
+				{l:29,t:9},
+				{l:29,t:10},
+				{l:29,t:11},
+				{l:29,t:12},
+				{l:29,t:13},
+				{l:29,t:14},
+				{l:28,t:14},
+				{l:27,t:14},
+				{l:26,t:14},
+				{l:25,t:14},
+				{l:24,t:14},
+				{l:23,t:14},
+				{l:22,t:14},
+				{l:21,t:14},
+				{l:20,t:14},
+				{l:19,t:14},
+				{l:18,t:14},
+				{l:17,t:14},
+				{l:16,t:14},
+				{l:15,t:14},
+				{l:14,t:14},
+				{l:13,t:14},
+				{l:12,t:14},
+				{l:11,t:14},
+				{l:10,t:14},
+				{l:9,t:14},
+				{l:8,t:14},
+				{l:7,t:14},
+				{l:6,t:14},
+				{l:5,t:14},
+				{l:4,t:14},
+				{l:3,t:14},
+				{l:2,t:14},
+				{l:1,t:14},
+				{l:0,t:14},
+				{l:0,t:13},
+				{l:0,t:12},
+				{l:0,t:11},
+				{l:0,t:10},
+				{l:0,t:9},
+				{l:0,t:8},
+				{l:0,t:7},
+				{l:0,t:6},
+				{l:0,t:5},
+				{l:0,t:4},
+				{l:0,t:3},
+				{l:0,t:2},
+				{l:0,t:1},
+				{l:2,t:2},
+				{l:2,t:3},
+				{l:2,t:4},
+				{l:2,t:5},
+				{l:2,t:9},
+				{l:2,t:10},
+				{l:2,t:11},
+				{l:2,t:12},
+				{l:4,t:2},
+				{l:5,t:2},
+				{l:6,t:2},
+				{l:7,t:2},
+				{l:8,t:2},
+				{l:9,t:2},
+				{l:10,t:2},
+				{l:11,t:2},
+				{l:12,t:2},
+				{l:13,t:2},
+				{l:15,t:2},
+				{l:16,t:2},
+				{l:17,t:2},
+				{l:18,t:2},
+				{l:19,t:2},
+				{l:20,t:2},
+				{l:21,t:2},
+				{l:22,t:2},
+				{l:23,t:2},
+				{l:24,t:2},
+				{l:25,t:2},
+				{l:27,t:2},
+				{l:27,t:3},
+				{l:27,t:4},
+				{l:27,t:5},
+				{l:27,t:9},
+				{l:27,t:10},
+				{l:27,t:11},
+				{l:27,t:12},
+				{l:25,t:12},
+				{l:24,t:12},
+				{l:23,t:12},
+				{l:22,t:12},
+				{l:21,t:12},
+				{l:20,t:12},
+				{l:19,t:12},
+				{l:18,t:12},
+				{l:17,t:12},
+				{l:16,t:12},
+				{l:14,t:12},
+				{l:13,t:12},
+				{l:12,t:12},
+				{l:11,t:12},
+				{l:10,t:12},
+				{l:9,t:12},
+				{l:8,t:12},
+				{l:7,t:12},
+				{l:6,t:12},
+				{l:5,t:12},
+				{l:4,t:12},			
+				{l:4,t:4},
+				{l:4,t:5},			
+				{l:4,t:7},
+				{l:4,t:8},
+				{l:4,t:9},
+				{l:4,t:10},
+				{l:5,t:10},
+				{l:6,t:10},
+				{l:7,t:10},
+				{l:8,t:10},
+				{l:9,t:10},
+				{l:10,t:10},
+				{l:11,t:10},
+				{l:12,t:10},			
+				{l:14,t:10},
+				{l:15,t:10},
+				{l:16,t:10},
+				{l:17,t:10},
+				{l:18,t:10},
+				{l:19,t:10},
+				{l:20,t:10},
+				{l:21,t:10},
+				{l:22,t:10},
+				{l:23,t:10},
+				{l:24,t:10},
+				{l:25,t:10},
+				{l:25,t:9},			
+				{l:25,t:7},
+				{l:25,t:6},
+				{l:25,t:5},
+				{l:25,t:4},			
+				{l:5,t:4},
+				{l:6,t:4},
+				{l:7,t:4},
+				{l:8,t:4},
+				{l:9,t:4},
+				{l:10,t:4},
+				{l:11,t:4},
+				{l:12,t:4},
+				{l:13,t:4},
+				{l:14,t:4},
+				{l:15,t:4},
+				{l:17,t:4},
+				{l:18,t:4},
+				{l:19,t:4},
+				{l:20,t:4},
+				{l:21,t:4},
+				{l:22,t:4},
+				{l:23,t:4},
+				{l:24,t:4}
+			],
+			length:8,
+			guanCount:1,
+			foodCount:0
+		};
+		function createWall(){
+			for(var i=0;i<map[map.guanCount].length;i++){
+				var oLi=document.createElement('li');
+				oLi.style.left=map[map.guanCount][i].l*20+'px';
+				oLi.style.top=map[map.guanCount][i].t*20+'px';
+				oSnake.appendChild(oLi);
+			}
+		}
+		//设置蛇的位置
+		function setPos(obj){
+			obj.elem.style.left=obj.l*20+'px';
+			obj.elem.style.top=obj.t*20+'px';
+		}
+		//开始游戏
+		function startFn(){
+			oSnake.innerHTML='';
+			aSnake=[];
+			dir='l';
+			createSnake();
+			(gameMode==0||gameMode==2)&&createFood();
+			gameMode==1&&(createFood(10,true),randomRount(createFood.node));
+			gameMode==2&&createWall();
+			var upDir='';	//保存蛇头上一个方向
+			document.onkeydown=function(ev){	//键盘控制蛇方向
+				var e=ev||event;
+				switch(e.keyCode){
+					case 37:		//左
+						dir=(dir=='r')?'r':'l';
+						break;
+					case 38:		//上
+						dir=(dir=='b')?'b':'t';	
+						break;
+					case 39:		//右
+						dir=(dir=='l')?'l':'r';	
+						break;
+					case 40:		//下
+						dir=(dir=='t')?'t':'b';	
+						break;
+				}
+				aSnake[0].dir=dir;
+				if(dir!=upDir){		//快速按键盘换方向
+					clearInterval(timer);
+					timer=setInterval(lesgo,iSpeed);
+					lesgo();
+				}
+				upDir=dir;
+			};
+		}
+		//游戏结束
+		function gameOver(str){
+			var oDiv=document.createElement('div');
+			oDiv.innerHTML='<h4>'+str+'</h4><p>得分：'+aSpan.innerHTML+'</p><button>重新开始</button><button>选择模式</button>';
+			oDiv.className='game-over';
+			oPanel.appendChild(oDiv);
+			
+			clearInterval(timer);
+			document.onkeydown=null;
+			aSpan.innerHTML='0';
+			iNow=0;
+			map.guanCount=1;
+			map.foodCount=0;
+			
+			var aButton=oDiv.getElementsByTagName('button');
+			aButton[0].onclick=function(){
+				oPanel.removeChild(oDiv);
+				startFn();
+			};
+			aButton[1].onclick=function(){
+				oPanel.removeChild(oDiv);
+				oOption.style.display='block';
+			};
+		}
+		//主要函数
+		function lesgo(){
+			//最后一节信息
+			var iEndPos={l:aSnake[aSnake.length-1].l,t:aSnake[aSnake.length-1].t,dir:aSnake[aSnake.length-1].dir};
+			//把前一节信息给后一节
+			for(var i=aSnake.length-1;i>0;i--){
+				aSnake[i].l=aSnake[i-1].l;
+				aSnake[i].t=aSnake[i-1].t;
+				aSnake[i].dir=aSnake[i-1].dir;
+			}
+			//判断往哪里走
+			switch(dir){
+				case 'l':
+					aSnake[0].l--;
+					break;
+				case 'r':
+					aSnake[0].l++;
+					break;			
+				case 't':
+					aSnake[0].t--;
+					break;
+				case 'b':
+					aSnake[0].t++;
+					break;
+			}
+			//让蛇跑起来
+			for(var i=0;i<aSnake.length;i++){		
+				setPos(aSnake[i]);
+			}
+			//改蛇头蛇尾方向
+			aSnake[0].elem.className='st st'+dir;
+			aSnake[aSnake.length-1].elem.className='sw sw'+aSnake[aSnake.length-1].dir;
+			//关卡模式过墙
+			if(gameMode==2){
+				if(aSnake[0].l==-1){
+					aSnake[0].l=29;
+				}else if(aSnake[0].t==-1){
+					aSnake[0].t=14;
+				}else if(aSnake[0].l==30){
+					aSnake[0].l=0;
+				}else if(aSnake[0].t==15){
+					aSnake[0].t=0;
+				}
+				setPos(aSnake[0]);
+			}
+			//吃
+			for(var i=0;i<createFood.node.length;i++){
+				if(aSnake[0].l==createFood.node[i].l&&aSnake[0].t==createFood.node[i].t){
+					aSnake.splice(aSnake.length-1,0,createFood.node[i]);
+					createFood.node[i].elem.className='';
+					aSnake[aSnake.length-2].l=aSnake[aSnake.length-1].l;
+					aSnake[aSnake.length-2].t=aSnake[aSnake.length-1].t;
+					aSnake[aSnake.length-2].dir=aSnake[aSnake.length-1].dir;
+					aSnake[aSnake.length-1].l=iEndPos.l;
+					aSnake[aSnake.length-1].t=iEndPos.t;
+					aSnake[aSnake.length-1].elem.className='sw sw'+iEndPos.dir;
+					setPos(aSnake[aSnake.length-2]);
+					setPos(aSnake[aSnake.length-1]);
+					(gameMode==0||gameMode==2)&&(aSpan.innerHTML=aSetSelect[gameMode].value*10*++iNow);
+					//经典模式过关
+					if(gameMode==0&&iNow==row*col-num){
+						gameOver('游戏过关!!');
+						return false;
+					}
+					//算数模式
+					if(gameMode==1&&aSnake.length==8){
+						if(aSnake[aSnake.length-3].elem.innerHTML=='='){
+							switch(aSnake[aSnake.length-5].elem.innerHTML){
+								case '+':
+									if(Number(aSnake[aSnake.length-6].elem.innerHTML)+Number(aSnake[aSnake.length-4].elem.innerHTML)==Number(aSnake[aSnake.length-2].elem.innerHTML)){
+										aSpan.innerHTML=Number(aSpan.innerHTML)+Number(aSnake[aSnake.length-2].elem.innerHTML);
+									}
+									break;
+								case '-':
+									if(Number(aSnake[aSnake.length-6].elem.innerHTML)-Number(aSnake[aSnake.length-4].elem.innerHTML)==Number(aSnake[aSnake.length-2].elem.innerHTML)){
+										aSpan.innerHTML=Number(aSpan.innerHTML)+Number(aSnake[aSnake.length-2].elem.innerHTML);
+									}
+									break;
+							}
+						}
+						clearInterval(timer);
+						document.onkeydown=null;
+						startFn();
+					}
+					//关卡模式过关
+					if(gameMode==2&&++map.foodCount==20){
+						if(map.guanCount==map.length){
+							gameOver('游戏过关!!');
+						}else{					
+							clearInterval(timer);
+							document.onkeydown=null;
+							map.guanCount++;
+							map.foodCount=0;
+							oSnake.innerHTML='第'+map.guanCount+'关';
+							oSnake.style.width='100px';
+							oSnake.style.lineHeight=row*20+'px';
+							animate(oSnake,{width:col*20},1000,'easeIn',function(){
+								startFn();
+							});
+						}
+						return false;
+					}
+					//生产食物
+					(gameMode==0||gameMode==2)&&createFood();
+				}
+			}
+			//非关卡模式撞墙死
+			if(gameMode==0||gameMode==1){
+				if(aSnake[0].l<0||aSnake[0].t<0||aSnake[0].l==col||aSnake[0].t==row){
+					gameOver('游戏结束!!');
+					return false;
+				}
+			}		
+			//撞自己死
+			for(var i=1;i<aSnake.length;i++){			
+				if(aSnake[0].l==aSnake[i].l&&aSnake[0].t==aSnake[i].t){
+					gameOver('游戏结束!!');
+					return false;
+				}
+			}
+			//撞障碍物死(关卡模式)
+			if(gameMode==2){
+				for(var i=0;i<map[map.guanCount].length;i++){
+					if(aSnake[0].l==map[map.guanCount][i].l&&aSnake[0].t==map[map.guanCount][i].t){
+						gameOver('游戏结束!!');
+						break;
+					}
+				}			
+			}
+		}
+		//随机颜色值
+		function randomColor(){
+			var str=Math.ceil(Math.random()*16777215).toString(16);
+			while(str.length<6){
+				str='0'+str;
+			}
+			return str;
+		}
+		//贪吃蛇拖拽
+		Drag({
+			id:$('#panel'),
+			xz:true,
+			resize:true,
+			fnDown:function(This){
+				This.css('z-index',++zIndex);
+			}
+		});
+		
+		//获取class
+		function getClass(parent,sClass,tag){
+			var arr=[];
+			if(parent.getElementsByClassName){
+				arr=parent.getElementsByClassName(sClass);
+			}else{
+				var node=parent.getElementsByTagName(tag);
+				for(var i=0;i<node.length;i++){
+					if(new RegExp('\\b'+sClass+'\\b').test(node[i].className)){
+						arr.push(node[i]);
+					}				
+				}
+			}
+			return arr;
+		}
+		//获取style
+		function getStyle(obj,attr){
+			if(obj.currentStyle){
+				return obj.currentStyle[attr];
+			}else{
+				return getComputedStyle(obj,false)[attr];
+			}
+		}
+		//运动函数
+		function animate(obj,json,times,fx,fn){
+			var iCur={};
+			for(var attr in json){
+				iCur[attr]=0;
+				if(attr=='opacity'){
+					iCur[attr]=Math.round(getStyle(obj,attr)*100);
+				}else{
+					iCur[attr]=parseInt(getStyle(obj,attr));
+				}
+			}
+			var startTime=now();
+			clearInterval(obj.timer);
+			obj.timer=setInterval(function(){
+				
+				var changeTime=now();
+				var t=times-Math.max(0,startTime-changeTime+times);
+				
+				for(var attr in json){
+					var value=Tween[fx](t,iCur[attr],json[attr]-iCur[attr],times);
+					if(attr=='opacity'){
+						obj.style.opacity=value/100;
+						obj.style.filter='alpha(opacity:'+value+')';
+					}else{
+						obj.style[attr]=value+'px';
+					}
+				}
+				if(t==times){
+					clearInterval(obj.timer);
+					if(fn){
+						fn.call(obj);
+					}
+				}
+			},13);
+			
+			function now(){
+				return (new Date()).getTime();
+			}
+		}
+		var Tween = {
+			linear: function (t, b, c, d){  //匀速
+				return c*t/d + b;
+			},
+			easeIn: function(t, b, c, d){  //加速曲线
+				return c*(t/=d)*t + b;
+			}
+		}
+	}
 		
 	//右侧隐藏栏
 	(function($){
@@ -1655,6 +2933,14 @@ $(function(){
 						top:t
 					});
 					riliJs();
+				}
+				if(!$('#panel')[0]&&This.attr('now')=='tanchishe'){//创建贪吃蛇
+					$tool.append(snakeHtml());
+					$('#panel').css({
+						left:l,
+						top:t
+					});
+					snakeJs();
 				}
 			});
 			return false;
