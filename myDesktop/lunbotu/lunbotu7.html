@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+table{border-collapse:collapse}
+a{text-decoration:none;}
+ul,ol{list-style:none;}
+img{vertical-align:middle;}
+table{border-collapse:collapse;}
+input,select,button,textarea{outline:none;}
+body{overflow:hidden;}
+
+#box{width:1100px;height:520px;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;border:1px solid #333;}
+.ul{width:100%;height:100%;position:absolute;perspective:800px;}
+.ul li{width:100%;height:100%;position:absolute;transition:transform 500ms ease;}
+.ol{width:200px;height:30px;position:absolute;bottom:10px;left:0;right:0;margin:0 auto;z-index:999;}
+.ol li{width:30px;height:30px;margin-left:10px;float:left;background:#666;border-radius:50%;cursor:pointer;}
+.ol .active{background:#f60;cursor:default;}
+.prev,.next{width:40px;height:80px;position:absolute;top:50%;margin-top:-40px;background:rgba(0,0,0,0.7);color:#FFF;text-align:center;font:30px/80px "宋体";cursor:pointer;border-radius:8px;z-index:999;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+.prev{left:10px;}
+.next{right:10px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var oUl=oBox.getElementsByClassName('ul')[0];
+	var oOl=oBox.getElementsByClassName('ol')[0];
+	var aUlLi=oUl.getElementsByTagName('li');//包图片的li
+	var aOlLi=oOl.getElementsByTagName('li');//中间按钮li
+	var oPrev=oBox.getElementsByClassName('prev')[0];//左按钮
+	var oNext=oBox.getElementsByClassName('next')[0];//右按钮
+	var iNow=iNow2=3;//iNow表示当前显示的那张，iNow2表示点击后出现的那张(这里一运行就显示第四张图片)
+	var timer=0;//引用延时器
+	var timer2=0;//引用定时器
+	var bBtn=true;//用来让效果完整运行完，才能进行下一次点击
+	//下面三句是初始化的，就是显示哪张以及中间按钮对应加class
+	aUlLi[iNow].style.zIndex=1;
+	aUlLi[iNow].style.visibility='visible';
+	aOlLi[iNow].className='active';
+	//切换的主要函数
+	function lesgo(dir){//参数dir表示切换的方向（例如：第一张跳到第三张，是当前这张运动到左边，要出来的那张运动到右边。第三张跳到第一张，则刚好相反。）
+		aOlLi[iNow].className=null;//清除当前这张的class
+		aOlLi[iNow2].className='active';//要出来的那张加class
+		for(var k=0;k<aOlLi.length;k++){//给所有包图片的li设置样式
+			if(k==iNow||k==iNow2)continue;//当然，当前和要出现的那张则不必了，下面单独设置，continue表示跳过此处循环
+			aUlLi[k].style.zIndex=0;
+			aUlLi[k].style.visibility='hidden';
+		}				
+		aUlLi[iNow].style.zIndex=2;//给当前这张设置z-index;且最大。
+		aUlLi[iNow].style.visibility='visible';//让当前这张显示
+		aUlLi[iNow2].style.zIndex=1;//给要出来的那张设置z-index;但是不能超过当前那张
+		aUlLi[iNow2].style.visibility='visible';//让出来的那张也显示
+		if(dir){//函数的参数，点右边按钮传个true,左边按钮传个false,中间按钮，用iNow<iNow2判断是true还是false
+			aUlLi[iNow].style.transform='rotateY(20deg) translate3D(-40%,0,-200px) scale(0.8)';//切换效果样式
+			aUlLi[iNow2].style.transform='rotateY(-20deg) translate3D(40%,0,-200px) scale(0.8)';//同上
+		}else{
+			aUlLi[iNow2].style.transform='rotateY(20deg) translate3D(-40%,0,-200px) scale(0.8)';//同上
+			aUlLi[iNow].style.transform='rotateY(-20deg) translate3D(40%,0,-200px) scale(0.8)';//同上
+		}	
+		(function(iNow){//用个匿名函数把iNow传进去，因为延时，不传，iNow会等于iNow2，下面代码有iNow=iNow2;
+			clearTimeout(timer);
+			timer=setTimeout(function(){//之所以要延时器，因为效果是分成两段的，所以就用延时等待第一段好。transitionend事件也行，本人喜欢延时器
+				aUlLi[iNow].style.zIndex=1;//执行效果第二段的时候，是当前这张z-index小于出来的那张
+				aUlLi[iNow2].style.zIndex=2;//理由如上
+				aUlLi[iNow].style.transform='rotateY(0deg) translate3D(0,0,0) scale(1)';//让一切归为初始状态
+				aUlLi[iNow2].style.transform='rotateY(0deg) translate3D(0,0,0) scale(1)';//同上
+				setTimeout(function(){
+					bBtn=true;//效果运行完才可以进行下一次
+				},500)		
+			},500);//延时的时间等于transition的时间
+		})(iNow);
+		iNow=iNow2;//效果执行完毕后，要把iNow2给iNow，因为下一次的时候，当前这张就是上次出来的那张。
+	}
+	//中间按钮
+	for(var i=0;i<aOlLi.length;i++){
+		(function(i){//用匿名函数代替索引
+			aOlLi[i].addEventListener('click',function(){
+				if(i==iNow2||!bBtn)return;//如果是点击当前这张图所对应的按钮，则不执行效果
+				bBtn=false;
+				iNow2=i;
+				lesgo(iNow<iNow2);
+			},false);
+		})(i);
+	}
+	//左边按钮
+	oPrev.addEventListener('click',function(){
+		if(!bBtn)return;//效果运行完才可以进行下一次
+		bBtn=false;//效果运行完才可以进行下一次
+		if(iNow2==0){
+			iNow2=aOlLi.length-1;
+		}else{
+			iNow2--;
+		}
+		lesgo(false);
+	},false);
+	//右边按钮
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){//自动播放其实就是点击右边按钮，所以他们共用一个函数
+		if(!bBtn)return;
+		bBtn=false;
+		if(iNow2==aOlLi.length-1){
+			iNow2=0;
+		}else{
+			iNow2++;
+		}
+		lesgo(true);
+	}
+	//自动播放
+	timer2=setInterval(nextFn,5000);
+	//移入暂停，移出自动
+	oBox.addEventListener('mouseenter',function(){
+		clearInterval(timer2);
+	},false);
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);
+},false);
+</script>
+</head>
+<body style="overflow:hidden;">
+<div id="box">
+	<ul class="ul">
+    	<li><a href="#1"><img src="img/show1.jpg"></a></li>
+        <li><a href="#2"><img src="img/show2.jpg"></a></li>
+        <li><a href="#3"><img src="img/show3.jpg"></a></li>
+        <li><a href="#4"><img src="img/show4.jpg"></a></li>
+        <li><a href="#5"><img src="img/show5.jpg"></a></li>
+    </ul>
+    <ol class="ol">
+    	<li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>

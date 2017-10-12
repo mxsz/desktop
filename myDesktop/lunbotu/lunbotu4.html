@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+ul,ol{list-style:none;}
+table{border-collapse:collapse;}
+a{text-decoration:none;}
+input,select,textarea,button{outline:none;}
+body{overflow:hidden;}
+
+#box{width:680px;height:460px;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;border:1px solid #333;}
+#box .wrap-a{width:100%;height:100%;position:absolute;left:0;top:0;perspective:1000px;}
+#box .wrap-a .wrap-kuai{float:left;}
+#box .ol{height:30px;position:absolute;bottom:10px;right:10px;}
+#box .ol li{width:30px;height:30px;float:left;border-radius:50%;background:#666;margin-left:10px;cursor:pointer;}
+#box .ol .active{background:#f60;cursor:default;}
+#box .prev,#box .next{width:40px;height:80px;position:absolute;top:50%;margin-top:-40px;text-align:center;font:30px/80px "宋体";color:#fff;background:rgba(0,0,0,0.8);cursor:pointer;border-radius:8px;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+#box .prev{left:10px;}
+#box .next{right:10px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var oWrapA=oBox.getElementsByClassName('wrap-a')[0];//a标签
+	var oWrapKuai=oWrapA.getElementsByClassName('wrap-kuai');//小图标签
+	var oOl=oBox.getElementsByClassName('ol')[0];
+	var oOlLi=oOl.getElementsByTagName('li');//右下角一排按钮
+	var oPrev=oBox.getElementsByClassName('prev')[0];//左边按钮
+	var oNext=oBox.getElementsByClassName('next')[0];//右边按钮
+	var bigWidth=oWrapA.offsetWidth;//大图的宽
+	var bigHeight=oWrapA.offsetHeight;//大图的高
+	var smallWidth=98;//小图的宽
+	var smallHeight=66;//小图的高
+	var row=Math.ceil(bigHeight/smallHeight);
+	var col=Math.ceil(bigWidth/smallWidth);
+	var lastWidth=bigWidth-smallWidth*(col-1);//每一行最后一个的宽
+	var lastHeight=bigHeight-smallHeight*(row-1);//每一列最后一个的高
+	var aHref=['#1','#2','#3','#4','#5'];//a标签href
+	var imgArr=['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg'];//图片url
+	var iNow=iNow2=0;//当前图和点击后出现的图
+	var timer=0;//延时器
+	var timer2=0;//定时器
+	//初始化(刚开始显示哪张图)
+	oWrapA.href=aHref[iNow];
+	oWrapA.style.background='url(img/'+imgArr[iNow]+') no-repeat center center';
+	oOlLi[iNow].className='active';
+	//创建若干个小图(创建若干个div)
+	for(var i=0;i<row;i++){
+		var tempWidth=smallWidth;
+		var tempHeight=smallHeight;
+		if(i==row-1)tempHeight=lastHeight;
+		for(var k=0;k<col;k++){
+			if(k==col-1)tempWidth=lastWidth;
+			var oNewDiv=document.createElement('div');
+			oNewDiv.className='wrap-kuai';
+			oNewDiv.style.width=tempWidth+'px';
+			oNewDiv.style.height=tempHeight+'px';
+			oNewDiv.style.background='url(img/'+imgArr[iNow]+') no-repeat -'+smallWidth*k+'px -'+smallHeight*i+'px';
+			oWrapA.appendChild(oNewDiv);
+		}
+	}
+	//主要切换函数
+	function lesgo(dir){
+		oWrapA.href=aHref[iNow2];
+		oWrapA.style.backgroundImage='url(img/'+imgArr[iNow2]+')';
+		oOlLi[iNow].className='';
+		oOlLi[iNow2].className='active';
+		for(var i=0;i<row*col;i++){
+			oWrapKuai[i].style.backgroundImage='url(img/'+imgArr[iNow]+')';
+			oWrapKuai[i].style.transition=oWrapKuai[i].style.MozTransition=oWrapKuai[i].style.OTransition=oWrapKuai[i].style.WebkitTransition='none';
+			oWrapKuai[i].style.transform=oWrapKuai[i].style.MozTransform=oWrapKuai[i].style.OTransform=oWrapKuai[i].style.WebkitTransform='none';
+			oWrapKuai[i].style.boxShadow='none';
+			oWrapKuai[i].style.opacity=1;
+			oWrapKuai[i].style.visibility='visible';
+		}
+		clearTimeout(timer);
+		timer=setTimeout(function(){
+			var count=dir?oWrapKuai.length:-1;
+			for(var i=0;i<row;i++){
+				for(var k=0;k<col;k++){
+					if(dir){
+						with(oWrapKuai[--count].style){	
+							transition=MozTransition=OTransition=WebkitTransition='box-shadow .3s,transform .8s,opacity .8s,visibility .8s';
+							transitionDelay=MozTransitionDelay=OTransitionDelay=WebkitTransitionDelay=(i+k)*50+'ms';
+							transform=MozTransform=OTransform=WebkitTransform='translate(-50px,-100px) rotateY(-720deg) rotateX(-540deg)';
+							boxShadow='0 0 20px blue';
+							opacity=0;
+							visibility='hidden';
+						}
+					}else{
+						with(oWrapKuai[++count].style){	
+							transition=MozTransition=OTransition=WebkitTransition='box-shadow .3s,transform .8s,opacity .8s,visibility .8s';
+							transitionDelay=MozTransitionDelay=OTransitionDelay=WebkitTransitionDelay=(i+k)*50+'ms';
+							transform=MozTransform=OTransform=WebkitTransform='translate(50px,100px) rotateY(720deg) rotateX(540deg)';
+							boxShadow='0 0 20px blue';
+							opacity=0;
+							visibility='hidden';
+						}
+					}
+				}
+			}
+		},100);
+		iNow=iNow2;
+	}
+	//右下角按钮
+	for(var i=0;i<oOlLi.length;i++){
+		oOlLi[i].index=i;
+		oOlLi[i].addEventListener('click',function(){
+			iNow2=this.index;
+			if(iNow==iNow2)return;
+			lesgo(iNow<iNow2);
+		},false);
+	}
+	//左按钮
+	oPrev.addEventListener('click',function(){
+		if(iNow2==0){
+			iNow2=oOlLi.length-1;
+		}else{
+			iNow2--;
+		}
+		lesgo(false);
+	},false);
+	//右按钮
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){
+		if(iNow2==imgArr.length-1){
+			iNow2=0;
+		}else{			
+			iNow2++;
+		}
+		lesgo(true);
+	}
+	//自动播放
+	timer2=setInterval(nextFn,5000);
+	//暂停继续
+	oBox.addEventListener('mouseenter',function(){
+		clearInterval(timer2);
+	},false);
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);
+},false);
+</script>
+</head>
+<body>
+<div id="box">
+	<a href="#1" class="wrap-a"></a>
+    <ol class="ol">
+    	<li><img src="img/1.jpg" style="display:none;"></li>
+        <li><img src="img/2.jpg" style="display:none;"></li>
+        <li><img src="img/3.jpg" style="display:none;"></li>
+        <li><img src="img/4.jpg" style="display:none;"></li>
+        <li><img src="img/5.jpg" style="display:none;"></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>

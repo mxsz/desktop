@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+a{text-align:center;}
+img{vertical-align:middle;}
+ul,ol{list-style:none;}
+table{border-collapse:collapse}
+input,select,button,textarea{outline:none;}
+body{overflow:hidden;}
+
+#box{width:680px;height:460px;border:1px solid #333;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;}
+#box .wrap-a{width:100%;height:100%;position:absolute;background:url(img/1.jpg) no-repeat center center;}
+#box .wrap-a .wrap-kuai{float:left;width:50%;height:100%;}
+#box .wrap-a .wrap-kuai span{width:100%;height:100%;display:block;background:url(img/1.jpg) no-repeat;}
+#box .wrap-a .wrap-kuai:nth-of-type(1){transform-origin:right center;}
+#box .wrap-a .wrap-kuai:nth-of-type(2){transform-origin:left center;}
+#box .wrap-a .wrap-kuai:nth-of-type(1) span{background-position:0 0;}
+#box .wrap-a .wrap-kuai:nth-of-type(2) span{background-position:100% 0;}
+#box .ol{height:30px;position:absolute;right:10px;bottom:10px;}
+#box .ol li{width:30px;height:30px;margin-left:10px;float:left;background:#666;border-radius:50%;cursor:pointer;}
+#box .ol .active{background:#f60;cursor:default;}
+#box .prev,#box .next{width:40px;height:80px;background:rgba(0,0,0,0.7);position:absolute;top:50%;margin-top:-40px;border-radius:10px;text-align:center;line-height:80px;font:30px/80px "宋体";color:#fff;cursor:pointer;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+#box .prev{left:10px;}
+#box .next{right:10px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var oWrapA=oBox.getElementsByClassName('wrap-a')[0];
+	var oWrapKuai=oWrapA.getElementsByClassName('wrap-kuai');
+	var oWrapKuaiSpan=oWrapA.getElementsByTagName('span');
+	var oOl=oBox.getElementsByClassName('ol')[0];	
+	var oOlLi=oOl.getElementsByTagName('li');
+	var oPrev=oBox.getElementsByClassName('prev')[0];//左边按钮
+	var oNext=oBox.getElementsByClassName('next')[0];//右边按钮
+	var hrefArr=['#1','#2','#3','#4','#5'];//a标签的href
+	var imgArr=['img/1.jpg','img/2.jpg','img/3.jpg','img/4.jpg','img/5.jpg'];//图片url
+	var iNow=iNow2=0;//当前图和点击后出现的图
+	var timer2=0;//定时器
+	var bBtn=true;
+	//初始化第一次数据
+	if(iNow!==0){
+		oWrapA.href=hrefArr[iNow];
+		oWrapA.style.background='url('+imgArr[iNow]+') no-repeat center center';
+	}
+	oOlLi[iNow].className='active';
+	//设置css3样式
+	function setStyle3(obj,name,value){
+		var _name=name.charAt(0).toUpperCase()+name.substring(1);
+		obj.style[name]=obj.style['Webkit'+_name]=obj.style['Moz'+_name]=obj.style['ms'+_name]=obj.style['O'+_name]=value;
+	}
+	//tween算法
+	moveCss3.tween={
+		linear:function(t,b,c,d){
+			return c*t/d + b;
+		},
+		easeIn: function(t, b, c, d){
+			return c*(t/=d)*t + b;
+		},
+		easeOut: function(t, b, c, d){
+			return -c *(t/=d)*(t-2) + b;
+		}
+	}
+	//运动函数
+	function moveCss3(obj,cur,target,time,type,fnMove,fnEnd){
+		var sTime=new Date().getTime();
+		clearInterval(obj.timer);
+		obj.timer=setInterval(function(){
+			var t=time-Math.max(0,sTime-new Date().getTime()+time);
+			var iTarget=moveCss3.tween[type](t,cur,target-cur,time);
+			fnMove&&fnMove(iTarget);
+			if(t===time){
+				clearInterval(obj.timer);
+				fnEnd&&fnEnd();
+			}
+		},13);
+	}
+	//转换主要函数
+	function lesgo(dir){
+		oWrapA.href=hrefArr[iNow2];
+		oWrapA.style.backgroundImage='url('+imgArr[iNow2]+')';
+		oOlLi[iNow].className='';
+		oOlLi[iNow2].className='active';
+		if(dir){	
+			oWrapKuai[1].btn=true;
+			moveCss3(oWrapKuai[1],0,-180,400,'easeOut',function(now){
+				if(now<-90&&oWrapKuai[1].btn){
+					oWrapKuai[1].btn=false;
+					oWrapKuaiSpan[1].style.background='url('+imgArr[iNow2]+') 0 0 no-repeat';
+					setStyle3(oWrapKuaiSpan[1],'transform','scaleX(-1)');
+				}
+				setStyle3(oWrapKuai[1], 'transform', 'perspective(1500px) rotateY('+now+'deg)');
+			},function(){
+				setStyle3(oWrapKuai[1],'transform','none');
+				setStyle3(oWrapKuaiSpan[1],'transform','none');
+				oWrapKuaiSpan[1].style.backgroundPosition='100% 0';
+				oWrapKuaiSpan[0].style.backgroundImage='url('+imgArr[iNow2]+')';
+				bBtn=true;
+			});
+		}else{
+			oWrapKuai[0].btn=true;
+			moveCss3(oWrapKuai[0],0,180,400,'easeOut',function(now){
+				if(now>90&&oWrapKuai[0].btn){
+					oWrapKuai[0].btn=false;
+					oWrapKuaiSpan[0].style.background='url('+imgArr[iNow2]+') 100% 0 no-repeat';
+					setStyle3(oWrapKuaiSpan[0],'transform','scaleX(-1)');
+				}
+				setStyle3(oWrapKuai[0], 'transform', 'perspective(1500px) rotateY('+now+'deg)');
+			},function(){
+				setStyle3(oWrapKuai[0],'transform','none');
+				setStyle3(oWrapKuaiSpan[0],'transform','none');
+				oWrapKuaiSpan[0].style.backgroundPosition='0 0';
+				oWrapKuaiSpan[1].style.backgroundImage='url('+imgArr[iNow2]+')';
+				bBtn=true;
+			});
+		}
+		iNow=iNow2;
+	}
+	//右下角按钮
+	for(var i=0;i<oOlLi.length;i++){
+		oOlLi[i].index=i;
+		oOlLi[i].addEventListener('click',function(){
+			if(!bBtn||iNow==this.index)return;
+			bBtn=false;
+			iNow2=this.index;
+			lesgo(iNow<iNow2);
+		},false);
+	}
+	//上一张按钮
+	oPrev.addEventListener('click',function(){
+		if(!bBtn||oOlLi.length==1)return;
+		bBtn=false;
+		if(iNow2==0){
+			iNow2=oOlLi.length-1;
+		}else{
+			iNow2--;
+		}
+		lesgo(false);
+	},false);
+	//下一张按钮
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){
+		if(!bBtn||oOlLi.length==1)return;
+		bBtn=false;
+		if(iNow2==oOlLi.length-1){
+			iNow2=0;
+		}else{
+			iNow2++;
+		}
+		lesgo(true);
+	}
+	//自动播放
+	/*timer2=setInterval(nextFn,5000);
+	oBox.addEventListener('mouseenter',function(){
+		clearInterval(timer2);
+	},false);
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);*/
+},false);
+</script>
+</head>
+<body>
+<div id="box">
+    <a href="#1" class="wrap-a">
+    	<div class="wrap-kuai"><span></span></div>
+        <div class="wrap-kuai"><span></span></div>
+    </a>
+    <ol class="ol">
+    	<li><img src="img/1.jpg" style="display:none;"></li>
+        <li><img src="img/2.jpg" style="display:none;"></li>
+        <li><img src="img/3.jpg" style="display:none;"></li>
+        <li><img src="img/4.jpg" style="display:none;"></li>
+        <li><img src="img/5.jpg" style="display:none;"></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>

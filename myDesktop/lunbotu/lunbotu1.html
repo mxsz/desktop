@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+ul,ol{list-style:none;}
+a{text-decoration:none;}
+img{vertical-align:middle;}
+table{border-collapse:collapse;}
+input,select,button,textarea{outline:none;}
+body{overflow:hidden;}
+
+#box{width:680px;height:460px;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;border:1px solid #333;}
+#box .wrap-a{width:100%;height:100%;display:block;perspective:1200px;perspective-origin:right;}
+#box .wrap-kuai{height:100%;float:left;transform-style:preserve-3d;transform-origin:center center -230px;/*高度变，这里注意调*/}
+#box .wrap-kuai span{width:100%;height:100%;position:absolute;left:0;}
+#box .wrap-kuai span:nth-of-type(1){background:url(img/1.jpg) no-repeat center center;top:0;}
+#box .wrap-kuai span:nth-of-type(2){background:url(img/2.jpg) no-repeat center center;top:-100%;
+										-webkit-transform:rotateX(90deg);
+										-moz-transform:rotateX(90deg);
+										-o-transform:rotateX(90deg);
+										transform:rotateX(90deg);
+										-webkit-transform-origin:bottom;
+										-moz-transform-origin:bottom;
+										-o-transform-origin:bottom;
+										transform-origin:bottom;
+									}
+#box .wrap-kuai span:nth-of-type(3){background:url(img/4.jpg) no-repeat center center;top:0;
+										-webkit-transform:translateZ(-460px);
+										-moz-transform:translateZ(-460px);
+										-o-transform:translateZ(-460px);
+										transform:translateZ(-460px);
+									}
+#box .wrap-kuai span:nth-of-type(4){background:url(img/3.jpg) no-repeat center center;top:100%;
+										-webkit-transform:rotateX(-90deg);
+										-moz-transform:rotateX(-90deg);
+										-o-transform:rotateX(-90deg);
+										transform:rotateX(-90deg);
+										-webkit-transform-origin:top;
+										-moz-transform-origin:top;
+										-o-transform-origin:top;
+										transform-origin:top;
+									}
+#box .ol{height:30px;position:absolute;bottom:10px;right:10px;}
+#box .ol li{width:30px;height:30px;background:#666;float:left;border-radius:50%;margin-left:10px;cursor:pointer;}
+#box .ol .active{background:#f60;cursor:default;}
+#box .prev,#box .next{width:40px;height:80px;background:rgba(0,0,0,0.8);text-align:center;font:30px/80px "宋体";position:absolute;top:50%;margin-top:-40px;color:#fff;border-radius:8px;cursor:pointer;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+#box .prev{left:10px;}
+#box .next{right:10px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var oWrapA=oBox.getElementsByClassName('wrap-a')[0];//a标签
+	var oWrapKuai=oWrapA.getElementsByClassName('wrap-kuai');//每一块的标签
+	var oWrapKuaiShang=oWrapA.getElementsByClassName('wrap-kuai-shang');//获取盒子上面的标签
+	var oWrapKuaiXia=oWrapA.getElementsByClassName('wrap-kuai-xia');//获取盒子底面的标签
+	var oWrapKuaiQian=oWrapA.getElementsByClassName('wrap-kuai-qian');//获取盒子前面的标签
+	var oOl=oBox.getElementsByClassName('ol')[0];
+	var oOlLi=oOl.getElementsByTagName('li');//右下角按钮
+	var oPrev=oBox.getElementsByClassName('prev')[0];//左边按钮
+	var oNext=oBox.getElementsByClassName('next')[0];//右边按钮
+	var aHref=['#1','#2','#3','#4','#5'];//a标签href
+	var imgUrl=['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg'];//图片url
+	var bigWidth=oWrapA.clientWidth;//大图宽
+	var colWidth=85;//每列的宽
+	var col=Math.ceil(bigWidth/colWidth);
+	var lastWidth=bigWidth-colWidth*(col-1);//最后一列的宽
+	var iNow=iNow2=0;//当前图和点击后出现的图
+	var timer=0;//延时器
+	var timer2=0;//定时器
+	var bBtn=true;//让运动完成才可以进行下一次的标识
+	//创建若干列小图(创建若干个div)
+	for(var i=0;i<col;i++){
+		var oDiv=document.createElement('div');
+		oDiv.className='wrap-kuai';
+		if(i==col-1){
+			oDiv.style.width=lastWidth+'px'
+		}else{
+			oDiv.style.width=colWidth+'px';
+		}
+		oDiv.innerHTML='<span class="wrap-kuai-qian" style="background-position:-'+colWidth*i+'px 0;"></span>'+
+						'<span class="wrap-kuai-shang" style="background-position:-'+colWidth*i+'px 0;"></span>'+
+						'<span class="wrap-kuai-hou" style="background-position:-'+colWidth*i+'px 0;"></span>'+
+						'<span class="wrap-kuai-xia" style="background-position:-'+colWidth*i+'px 0;"></span>';
+		oWrapA.appendChild(oDiv);
+	}
+	//初始化(刚开始要显示那张图)
+	if(iNow!=0){
+		for(var i=0;i<oWrapKuaiQian.length;i++){
+			oWrapKuaiQian[i].style.backgroundImage='url(img/'+imgUrl[iNow]+')';
+		}
+		oWrapA.href=aHref[iNow];
+	}
+	oOlLi[iNow].className='active';
+	//切换主要函数
+	function lesgo(dir){
+		oWrapA.href=aHref[iNow2];
+		oOlLi[iNow].className='';
+		oOlLi[iNow2].className='active';
+		for(var k=0;k<oWrapKuai.length;k++){
+			oWrapKuai[k].style.transition=oWrapKuai[k].style.OTransition=oWrapKuai[k].style.MozTransition=oWrapKuai[k].style.WebkitTransition='260ms '+k*40+'ms';		
+		}
+		if(dir){
+			for(var j=0;j<oWrapKuaiShang.length;j++){
+				oWrapKuaiShang[j].style.backgroundImage='url(img/'+imgUrl[iNow2]+')';
+			}
+			for(var j=0;j<oWrapKuai.length;j++){
+				oWrapKuai[j].style.transform=oWrapKuai[j].style.OTransform=oWrapKuai[j].style.MozTransform=oWrapKuai[j].style.WebkitTransform='rotateX(-90deg)';
+			}
+			
+		}else{
+			for(var j=0;j<oWrapKuaiShang.length;j++){
+				oWrapKuaiXia[j].style.backgroundImage='url(img/'+imgUrl[iNow2]+')';
+			}
+			for(var j=0;j<oWrapKuai.length;j++){
+				oWrapKuai[j].style.transform=oWrapKuai[j].style.OTransform=oWrapKuai[j].style.MozTransform=oWrapKuai[j].style.WebkitTransform='rotateX(90deg)';
+			}
+		}
+		clearTimeout(timer);
+		timer=setTimeout(function(){
+			for(var k=0;k<oWrapKuaiQian.length;k++){
+				oWrapKuaiQian[k].style.backgroundImage='url(img/'+imgUrl[iNow2]+')';
+			}
+			for(var k=0;k<oWrapKuai.length;k++){
+				oWrapKuai[k].style.transition=oWrapKuai[k].style.OTransition=oWrapKuai[k].style.MozTransition=oWrapKuai[k].style.WebkitTransition='none';
+				oWrapKuai[k].style.transform=oWrapKuai[k].style.OTransform=oWrapKuai[k].style.MozTransform=oWrapKuai[k].style.WebkitTransform='none';
+			}
+			bBtn=true;
+		},260+k*40);
+		iNow=iNow2;
+	}
+	//右下角按钮点击
+	for(var i=0;i<oOlLi.length;i++){
+		!function(i){
+			oOlLi[i].addEventListener('click',function(){
+				if(!bBtn||i==iNow2)return;
+				bBtn=false;
+				iNow2=i;
+				lesgo(iNow<iNow2);
+			},false);
+		}(i)
+	}
+	//左边按钮
+	oPrev.addEventListener('click',function(){
+		if(!bBtn||oOlLi.length==1)return;
+		bBtn=false;
+		if(iNow2==0){
+			iNow2=oOlLi.length-1;
+		}else{
+			iNow2--;
+		}
+		lesgo(false);
+	},false);
+	//右边按钮
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){
+		if(!bBtn||oOlLi.length==1)return;
+		bBtn=false;
+		if(iNow2==oOlLi.length-1){
+			iNow2=0;
+		}else{
+			iNow2++;
+		}
+		lesgo(true);
+	}
+	//自动播放
+	timer2=setInterval(nextFn,5000);
+	//暂停继续
+	oBox.addEventListener('mouseenter',function(){
+		clearInterval(timer2);
+	},false);
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);
+},false);
+</script>
+</head>
+<body>
+<div id="box">
+    <a href="#1" class="wrap-a"></a>
+    <ol class="ol">
+        <li><img src="img/1.jpg" style="display:none;"></li>
+        <li><img src="img/2.jpg" style="display:none;"></li>
+        <li><img src="img/3.jpg" style="display:none;"></li>
+        <li><img src="img/4.jpg" style="display:none;"></li>
+        <li><img src="img/5.jpg" style="display:none;"></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>

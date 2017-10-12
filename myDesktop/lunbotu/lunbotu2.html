@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+ul,ol{list-style:none;}
+a{text-decoration:none;}
+img{vertical-align:middle;}
+table{border-collapse:collapse;}
+input,button,select,textarea{outline:none;}
+body{overflow:hidden;}
+
+#box{width:680px;height:460px;border:1px solid #333;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;perspective:1000px;}
+#box .ul{width:100%;height:100%;position:relative;transform-style:preserve-3d;transform-origin:center center -230px;/*高度改变，这里注意调*/}
+#box .ul li{width:100%;height:100%;position:absolute;left:0;display:none;}
+#box .ol{height:30px;position:absolute;bottom:10px;right:10px;}
+#box .ol li{width:30px;height:30px;float:left;margin-left:10px;background:#666;border-radius:50%;cursor:pointer;}
+#box .ol .active{background:#f60;cursor:default;}
+#box span{width:40px;height:80px;text-align:center;font:30px/80px "宋体";background:rgba(0,0,0,0.8);color:#fff;position:absolute;top:50%;margin-top:-40px;cursor:pointer;border-radius:8px;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+#box .prev{left:10px;}
+#box .next{right:10px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var aUl=oBox.getElementsByClassName('ul')[0];
+	var aUlLi=aUl.getElementsByTagName('li');
+	var aOl=oBox.getElementsByClassName('ol')[0];
+	var aOlLi=aOl.getElementsByTagName('li');//右下角按钮
+	var oPrev=oBox.getElementsByClassName('prev')[0];//左边按钮
+	var oNext=oBox.getElementsByClassName('next')[0];//右边按钮
+	var iHeight=aUl.offsetHeight;//ul高
+	var iLiLen=aUlLi.length;
+	var iNow=iNow2=0;//当前图和点击后显示的图
+	var timer=0;//延时器
+	var timer2=0;//定时器
+	var bBtn=true;//一次完整运动结束后才可以进行下一次的标识
+	//初始化(刚开始要显示第几张图)
+	aOlLi[iNow].className='active';
+	aUlLi[iNow].style.display='block';
+	//翻转主要函数
+	function lesgo(dir){
+		aOlLi[iNow].className='';
+		aOlLi[iNow2].className='active';
+		aUlLi[iNow2].style.display='block';
+		aUl.style.transition=aUl.style.OTransition=aUl.style.MozTransition=aUl.style.WebkitTransition='transform 400ms';
+		if(dir){
+			aUlLi[iNow2].style.top=-iHeight+'px';
+			aUlLi[iNow2].style.transformOrigin='bottom';
+			aUlLi[iNow2].style.transform=aUlLi[iNow2].style.OTransform=aUlLi[iNow2].style.MozTransform=aUlLi[iNow2].style.WebkitTransform='rotateX(90deg)';
+			aUl.style.transform=aUl.style.OTransform=aUl.style.MozTransform=aUl.style.WebkitTransform='rotateX(-90deg)';		
+		}else{
+			aUlLi[iNow2].style.top=iHeight+'px';
+			aUlLi[iNow2].style.transformOrigin='top';
+			aUlLi[iNow2].style.transform=aUlLi[iNow2].style.OTransform=aUlLi[iNow2].style.MozTransform=aUlLi[iNow2].style.WebkitTransform='rotateX(-90deg)';
+			aUl.style.transform=aUl.style.OTransform=aUl.style.MozTransform=aUl.style.WebkitTransform='rotateX(90deg)';
+		}
+		(function(iNow){
+			clearTimeout(timer);
+			timer=setTimeout(function(){
+				aUl.style.transition=aUl.style.OTransition=aUl.style.MozTransition=aUl.style.WebkitTransition='none';
+				aUl.style.transform=aUl.style.OTransform=aUl.style.MozTransform=aUl.style.WebkitTransform='none';
+				aUlLi[iNow2].style.transform=aUlLi[iNow2].style.OTransform=aUlLi[iNow2].style.MozTransform=aUlLi[iNow2].style.WebkitTransform='none';
+				aUlLi[iNow2].style.top=0;
+				aUlLi[iNow].style.display='none';
+				bBtn=true;
+			},400);
+		})(iNow);
+		iNow=iNow2;
+	}
+	//按钮点击
+	for(var i=0;i<iLiLen;i++){
+		(function(i){
+			aOlLi[i].addEventListener('click',function(){
+				if(i==iNow||!bBtn)return;
+				bBtn=false;
+				iNow2=i;
+				lesgo(iNow<iNow2);
+			},false);
+		})(i);
+	}
+	//左边按钮	
+	oPrev.addEventListener('click',function(){//左
+		if(!bBtn||aUlLi.length==1)return;
+		bBtn=false;
+		if(iNow2==0){
+			iNow2=iLiLen-1;
+		}else{
+			iNow2--;
+		}
+		lesgo(false);
+	},false);
+	//右边按钮
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){
+		if(!bBtn||aUlLi.length==1)return;
+		bBtn=false;
+		if(iNow2==iLiLen-1){
+			iNow2=0;
+		}else{
+			iNow2++;
+		}
+		lesgo(true);
+	}
+	//自动播放
+	timer2=setInterval(nextFn,5000);
+	//暂停继续
+	oBox.addEventListener('mouseenter',function(){		
+		clearInterval(timer2);
+	},false);
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);
+},false);
+</script>
+</head>
+<body>
+<div id="box">
+	<ul class="ul">
+    	<li><a href="#1"><img src="img/1.jpg"></a></li>
+        <li><a href="#2"><img src="img/2.jpg"></a></li>
+        <li><a href="#3"><img src="img/3.jpg"></a></li>
+        <li><a href="#4"><img src="img/4.jpg"></a></li>
+        <li><a href="#5"><img src="img/5.jpg"></a></li>
+    </ul>
+    <ol class="ol">
+    	<li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>

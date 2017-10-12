@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+*{margin:0;padding:0;}
+a{text-align:center;}
+img{vertical-align:middle;}
+ul,ol{list-style:none;}
+table{border-collapse:collapse}
+input,select,button,textarea{outline:none;}
+body{overflow:hidden;}
+
+#box{width:680px;height:460px;border:1px solid #333;position:absolute;left:0;top:0;bottom:0;right:0;margin:auto;-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+#box .img-wrap{width:100%;height:100%;}
+#box .img-wrap a{display:block;width:100%;height:100%;perspective:500px;background:url(img/1.jpg) no-repeat center center;}
+#box .img-wrap a div{float:left;}
+#box .ol{height:30px;position:absolute;right:10px;bottom:10px;}
+#box .ol li{width:30px;height:30px;margin-left:10px;float:left;background:#999;border-radius:50%;cursor:pointer;}
+#box .ol .active{background:#f60;cursor:default;}
+#box .prev,#box .next{width:40px;height:80px;background:rgba(0,0,0,0.7);position:absolute;top:50%;margin-top:-40px;border-radius:10px;text-align:center;line-height:80px;font:30px/80px "宋体";color:#fff;cursor:pointer;}
+#box .prev{left:5px;}
+#box .next{right:5px;}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+	var oBox=document.getElementById('box');
+	var oImgWrap=oBox.getElementsByClassName('img-wrap')[0];
+	var aA=oImgWrap.getElementsByTagName('a')[0];
+	var aADiv=aA.getElementsByTagName('div');
+	var oOl=oBox.getElementsByClassName('ol')[0];	
+	var oOlLi=oOl.getElementsByTagName('li');
+	var oPrev=oBox.getElementsByClassName('prev')[0];
+	var oNext=oBox.getElementsByClassName('next')[0];
+	var iOlLiLen=oOlLi.length;
+	var hrefArr=['#1','#2','#3','#4','#5'];//a标签的href
+	var imgArr=['img/1.jpg','img/2.jpg','img/3.jpg','img/4.jpg','img/5.jpg'];//图片url
+	var aAWid=aA.offsetWidth;//大图宽
+	var aAHei=aA.offsetHeight;//大图高
+	var smallWid=136;//小图宽
+	var smallHei=92;//小图高
+	var col=Math.ceil(aAWid/smallWid);//多少列
+	var row=Math.ceil(aAHei/smallHei);//多少行
+	var surplusWid=aAWid-smallWid*(col-1);//每一行最后一个的宽
+	var surplusHei=aAHei-smallHei*(row-1);//每一列最后一个的高
+	var iNow=iNow2=0;//当前图和点击后出现的图
+	var timer=0;//延时器
+	var timer2=0;//定时器
+	//初始化第一次数据
+	if(iNow!==0){
+		aA.href=hrefArr[iNow2];
+		aA.style.background='url('+imgArr[iNow2]+') no-repeat center center';
+	}
+	oOlLi[iNow2].className='active';
+	//将大图分割成若干个小图(创建若干个div)
+	var strDiv='';
+	for(var i=0;i<row;i++){
+		var newWid=smallWid;
+		var newHei=smallHei;
+		if(i==row-1)newHei=surplusHei;
+		for(var k=0;k<col;k++){
+			if(k==col-1)newWid=surplusWid;
+			strDiv+='<div style="width:'+newWid+'px;height:'+newHei+'px;background:url('+imgArr[iNow2]+') -'+k*smallWid+'px -'+i*smallHei+'px;"></div>';		
+		}
+	}
+	aA.innerHTML=strDiv;
+	//转换主要函数
+	function lesgo(){
+		for(var i=0;i<aADiv.length;i++){
+			aADiv[i].style.backgroundImage='url('+imgArr[iNow]+')';
+			aADiv[i].style.transition=aADiv[i].style.OTransition=aADiv[i].style.MozTransition=aADiv[i].style.WebkitTransition='none';
+			aADiv[i].style.transform=aADiv[i].style.OTransform=aADiv[i].style.MozTransform=aADiv[i].style.WebkitTransform='none';
+			aADiv[i].style.opacity=1;
+			aADiv[i].style.visibility='visible';
+		}			
+		oOlLi[iNow].className='';
+		oOlLi[iNow2].className='active';
+		aA.href=hrefArr[iNow2];
+		aA.style.backgroundImage='url('+imgArr[iNow2]+')';
+		clearTimeout(timer);
+		timer=setTimeout(function(){
+			for(var i=0;i<aADiv.length;i++){
+				aADiv[i].style.transition=aADiv[i].style.OTransition=aADiv[i].style.MozTransition=aADiv[i].style.WebkitTransition='transform 500ms,opacity 500ms,visibility 500ms';
+				aADiv[i].style.transform=aADiv[i].style.OTransform=aADiv[i].style.MozTransform=aADiv[i].style.WebkitTransform='translateZ(350px) rotate('+((Math.random()*2-1)*180)+'deg) rotateX('+((Math.random()*2-1)*180)+'deg) rotateY('+((Math.random()*2-1)*180)+'deg)';
+				aADiv[i].style.opacity=0;
+				aADiv[i].style.visibility='hidden';
+			}
+		},100);
+		iNow=iNow2;
+	}
+	//右下角按钮
+	for(var i=0;i<iOlLiLen;i++){
+		oOlLi[i].index=i;
+		oOlLi[i].addEventListener('click',function(){
+			iNow2=this.index;
+			if(iNow==iNow2)return;
+			lesgo();
+		},false);
+	}
+	//上一张按钮
+	oPrev.addEventListener('click',function(){
+		if(iOlLiLen==1)return;
+		if(iNow2==0){
+			iNow2=iOlLiLen-1;
+		}else{
+			iNow2--;
+		}
+		lesgo();
+	},false);
+	//下一张按钮
+	oNext.addEventListener('click',nextFn,false);
+	function nextFn(){
+		if(iOlLiLen==1)return;
+		if(iNow2==iOlLiLen-1){
+			iNow2=0;
+		}else{
+			iNow2++;
+		}
+		lesgo();
+	}
+	//自动播放
+	timer2=setInterval(nextFn,5000);
+	oBox.addEventListener('mouseenter',function(){
+		clearInterval(timer2);
+	},false);
+	oBox.addEventListener('mouseleave',function(){
+		timer2=setInterval(nextFn,5000);
+	},false);
+},false);
+</script>
+</head>
+<body style="overflow-x:hidden;height:1200px;">
+<div id="box">
+	<div class="img-wrap">
+    	<a href="#1"></a>
+    </div>
+    <ol class="ol">
+    	<li><img src="img/1.jpg" style="display:none;"></li>
+        <li><img src="img/2.jpg" style="display:none;"></li>
+        <li><img src="img/3.jpg" style="display:none;"></li>
+        <li><img src="img/4.jpg" style="display:none;"></li>
+        <li><img src="img/5.jpg" style="display:none;"></li>
+    </ol>
+    <span class="prev">&lt;</span>
+    <span class="next">&gt;</span>
+</div>
+</body>
+</html>
