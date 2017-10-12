@@ -154,7 +154,13 @@ $(function(){
 	var htmlJson={
 		shouye:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="mede2.html"></iframe>',
 		huishouzhan:'<div class="huishouzhan"><ul id="hsz_list"></ul></div>',
-		tuce:'<div>push pop unshift shift splice join slice sort reverse</div>'
+		lunbotu1:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu1.html"></iframe>',
+		lunbotu2:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu2.html"></iframe>',
+		lunbotu3:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu3.html"></iframe>',
+		lunbotu4:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu4.html"></iframe>',
+		lunbotu5:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu5.html"></iframe>',
+		lunbotu6:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu6.html"></iframe>',
+		lunbotu7:'<iframe width="100%" height="100%" name="in" frameborder="0" scrolling="yes" src="lunbotu/lunbotu7.html"></iframe>'
 	};
 	$iconList.on('dblclick','li',function(e){
 		if(e.ctrlKey)return;
