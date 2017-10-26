@@ -1,5 +1,5 @@
 <?php
-	echo "[
+	"[
 			{"id":"1","name":"张杰","musicName":"逆战"},
 			{"id":"2","name":"张学友","musicName":"烦恼歌"},
 			{"id":"3","name":"周杰伦","musicName":"红尘客栈"},
