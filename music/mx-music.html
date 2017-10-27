@@ -23,13 +23,14 @@ a{text-decoration:none;}
 
 .mx-music-content{position:absolute;top:38px;left:0;right:0;bottom:60px;background:url(img/bg.jpg) no-repeat;background-size:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .mx-music-list{width:100%;}
-.mx-music-list li{width:100%;height:50px;background:rgba(26,26,26,0.6);border-bottom:1px #999 solid;box-sizing:border-box;position:relative;box-sizing:border-box;}
-.mx-music-list h2,.mx-music-list p{height:20px;line-height:20px;text-indent:10px;position:absolute;left:0;right:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mx-music-list li{width:100%;height:60px;background:rgba(26,26,26,0.6);border-bottom:1px #999 solid;box-sizing:border-box;position:relative;box-sizing:border-box;}
+.mx-music-list h2,.mx-music-list p{height:25px;line-height:25px;text-indent:10px;position:absolute;left:0;right:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .mx-music-list h2{color:#fff;font-size:16px;top:5px;}
 .mx-music-list p{font-size:14px;color:#b3b3b3;bottom:5px;}
 .mx-music-list div{width:14px;height:14px;background:url(img/music-now.gif) no-repeat;background-size:100%;position:absolute;top:18px;right:18px;display:none;}
 .mx-music-list .dis-blo{display:block;}
 .mx-music-list li:last-child{border-bottom:none;}
+.mx-music-more{height:30px;line-height:30px;text-align:center;font-size:14px;color:#f3f3f3;}
 
 .mx-music-lyric{position:absolute;width:100%;top:0;bottom:0;z-index:2;background:#f2f2f2 url(img/detailsBg.jpg) no-repeat;background-size:100%;-webkit-transform:translate3d(0,100%,0);transform:translate3d(0,100%,0);-webkit-transition:all 300ms 0s ease;transition:all 300ms 0s ease;}
 .mx-music-lyric h4,.mx-music-lyric p{text-align:center;overflow:hidden;background:#1c7197;}
@@ -46,13 +47,14 @@ a{text-decoration:none;}
 .mx-music-lyric-div .t em,.mx-music-lyric-div .t i{width:50px;height:20px;line-height:20px;font-size:12px;color:#fff;position:absolute;top:-9px;text-align:center;font-style:normal;}
 .mx-music-lyric-div .t em{left:-50px;}
 .mx-music-lyric-div .t i{right:-50px;}
-.mx-music-lyric-div .t span{width:0;height:2px;background:#29abe2;position:absolute;left:0;top:0;overflow:hidden;}
-.mx-music-lyric-div .t b{width:14px;height:14px;background:#29abe2;border-radius:50%;position:absolute;left:-7px;top:50%;margin-top:-7px;}
+.mx-music-lyric-div .t span{width:0;height:2px;background:#29abe2;position:absolute;left:0;top:0;}
+.mx-music-lyric-div .t b{width:14px;height:14px;background:#29abe2;border-radius:7px;position:absolute;right:-7px;top:-6px;}
 .mx-music-lyric-div .b{width:200px;height:56px;position:absolute;left:50%;bottom:30px;margin-left:-100px;}
 .mx-music-lyric-div .b span,.mx-music-lyric-div .b i{width:38px;height:38px;background-size:100%;position:absolute;top:9px;}
 .mx-music-lyric-div .b span{background-image:url(img/details_prev.png);left:0;}
 .mx-music-lyric-div .b i{background-image:url(img/details_next.png);right:0;}
 .mx-music-lyric-div .b em{width:56px;height:56px;background:url(img/details_pause.png) no-repeat;background-size:100%;position:absolute;left:50%;margin-left:-28px;}
+.mx-music-lyric-div .b b{width:36px;height:26px;background:url(img/qiehuan.png) no-repeat 8px 7px;position:absolute;left:-40px;top:50%;margin-top:-13px;}
 
 .mx-music-footer{height:60px;position:absolute;left:0;right:0;bottom:0;background:url(img/list_audioBg.png) repeat-x;}
 .mx-music-footer div{width:50px;height:50px;margin:5px 0 0 10px;background:url(img/miaov.jpg) no-repeat;border-radius:50%;background-size:100%;}
@@ -104,17 +106,9 @@ a{text-decoration:none;}
 </style>
 <script>
 function ajax(obj){
-	//默认值
 	obj.method = obj.method || 'get';
 	obj.async = obj.async || true;
-	//创建xhr对象
-	var xhr=null;
-	try{
-		xhr=new XMLHttpRequest();
-	}catch(e){//兼容ie6
-		xhr=new ActiveXObject('Microsoft.XMLHTTP');
-	}
-	//解决特殊字符问题
+	var xhr=new XMLHttpRequest();
 	var data=(function(datas){
 		var arr=[];
 		for(var i in datas){
@@ -139,14 +133,14 @@ function ajax(obj){
 	}else{	
 		callback();
 	}
-		
 	function callback(){
 		if(xhr.status===200){
 			obj.success(xhr.responseText);//xhr.responseText后台返回的值
 		}else{
-			alert('错误代号：' + xhr.status + '，错误信息：' + xhr.statusText);
+			console.log('错误代号：' + xhr.status + '，错误信息：' + xhr.statusText);
 		}
 	}
+	return xhr;
 }
 document.addEventListener('DOMContentLoaded',function(){
 	
@@ -157,6 +151,7 @@ document.addEventListener('DOMContentLoaded',function(){
 		audio.paused			设置或返回音频/视频是否暂停，暂停为true
 		audio.duration			返回音频/视频总时长（以秒计）
 		audio.currentTime		设置或返回音频/视频播放了多少（以秒计）
+		audio.loop				设置值为"loop"可以循环播放音频/视频
 		audio.play()			开始播放音频/视频
 		audio.pause()			暂停当前播放的音频/视频
 		audio.load()			重新加载音频/视频元素
@@ -166,7 +161,9 @@ document.addEventListener('DOMContentLoaded',function(){
 	*/
 	var mxMusic=document.querySelector('#mx-music');
 	var mxAudio=document.querySelector('#mx-audio');
+	var mxMusicContent=mxMusic.querySelector('.mx-music-content');
 	var mxMusicList=mxMusic.querySelector('.mx-music-list');
+	var mxMusicMore=mxMusic.querySelector('.mx-music-more');
 	var mxMusicListDiv=mxMusicList.getElementsByTagName('div');
 	var mxMusicFooter=mxMusic.querySelector('.mx-music-footer');
 	var mxMusicFooterDiv=mxMusicFooter.getElementsByTagName('div')[0];
@@ -191,11 +188,15 @@ document.addEventListener('DOMContentLoaded',function(){
 	var mxMusicLyricDivBSpan=mxMusicLyricDivB.getElementsByTagName('span')[0];
 	var mxMusicLyricDivBEm=mxMusicLyricDivB.getElementsByTagName('em')[0];
 	var mxMusicLyricDivBI=mxMusicLyricDivB.getElementsByTagName('i')[0];
+	var mxMusicLyricDivBB=mxMusicLyricDivB.getElementsByTagName('b')[0];
+	var musicArr=[];
 	var imgArr=['bg.jpg','detailsBg.jpg','details_next.png','details_play.png','details_prev.png','details_pause.png','list_audioPause.png','list_audioPlay.png'];
-	var lyricArr=[];//歌词
-	var lyricDate=[];//每句歌词的时间
-	var timer=0;
+	var timer=0;//定时器
 	var tempMusicId='';//当前播放的索引
+	var scale=0;
+	var xhr=null;//中断ajax请求有关
+	var abort=false;//中断ajax请求有关
+	//var a = navigator.userAgent.toLowerCase().indexOf('mobile');//判断是否是移动端
 	//加载图片后显示
 	function loadingFn(){
 		var oImg=new Image();
@@ -204,29 +205,53 @@ document.addEventListener('DOMContentLoaded',function(){
 			if(loadingFn.now<imgArr.length){
 				loadingFn();
 			}else{
-				var mxLoading=document.querySelector('#mx-loading');
-				mxMusic.removeChild(mxLoading);
+				mxMusic.removeChild(document.querySelector('#mx-loading'));
 			}
 		};
-		oImg.onerror=function(){};
+		oImg.onerror=function(){
+			mxMusic.removeChild(document.querySelector('#mx-loading'));
+		};
 		oImg.src='img/'+imgArr[loadingFn.now];
 	}
 	loadingFn.now=0;
 	loadingFn();
 	//初始化数据
-	ajax({
-		url:'initList.php',
-		success:function(data){
-			console.log(data);
-			var data=JSON.parse(data);
-			for(var i=0;i<data.length;i++){
-				var oLi=document.createElement('li');
-				oLi.setAttribute('musicId',data[i].id);
-				oLi.innerHTML='<h2>'+data[i].musicName+'</h2><p>'+data[i].name+'</p><div></div>';
-				mxMusicList.appendChild(oLi);
-			}
+	dataListFn.page=1;
+	function dataListFn(page){
+		if(dataListFn.page>=4){
+			mxMusicMore.innerHTML='没有更多了';
+			return;
 		}
-	});
+		ajax({
+			url:dataListFn.page+'.txt',
+			success:function(data){
+				var data=JSON.parse(data);
+				if(data.length){
+					for(var i=0;i<data.length;i++){
+						var oLi=document.createElement('li');
+						oLi.setAttribute('musicId',data[i].id);
+						oLi.innerHTML='<h2>'+data[i].musicName+'</h2><p>'+data[i].name+'</p><div></div>';
+						mxMusicList.appendChild(oLi);
+						musicArr.push(data[i].id);
+					}
+					dataListFn.page++;
+					mxMusicContent.btn=true;
+				}else{
+					mxMusicMore.innerHTML='没有更多了';
+				}
+			}
+		});
+	}
+	dataListFn(dataListFn.page);
+	//下滑加载更多音乐
+	mxMusicContent.btn=true;
+	mxMusicContent.addEventListener('scroll',scrollMusicFn,false);
+	function scrollMusicFn(){
+		if(mxMusicContent.btn&&mxMusicMore.getBoundingClientRect().top<document.documentElement.clientHeight-60){
+			mxMusicContent.btn=false;
+			dataListFn(dataListFn.page);
+		}
+	}
 	//点击某首音乐
 	var disX=0;
 	var disY=0;
@@ -253,10 +278,11 @@ document.addEventListener('DOMContentLoaded',function(){
 		showMusic(musicId);
 	}
 	function showMusic(musicId){
-		ajax({
-			url:'musicShow.php',
-			data:{id:musicId},
-			async:false,
+		abort&&xhr.abort();
+		abort=!abort;
+		xhr=ajax({
+			url:musicId+'.php',
+			//data:{id:musicId},
 			success:function(data){
 				var data=JSON.parse(data);
 				mxAudio.src='img/'+data.audio;//设置歌曲路劲
@@ -264,48 +290,66 @@ document.addEventListener('DOMContentLoaded',function(){
 				mxMusicListDiv[classNow].className='';
 				classNow=musicId-1;
 				mxMusicListDiv[classNow].className='dis-blo';
+				tempMusicId=musicId;//当前歌词id
 				mxMusicFooterDiv.style.backgroundImage='url(img/'+data.img+')';//歌手头像
 				mxMusicLyricH4.innerHTML=mxMusicFooterH3.innerHTML=data.musicName;//歌曲标题
 				mxMusicLyricP.innerHTML=mxMusicFooterP.innerHTML=data.name;//歌手名字
-				mxMusicFooterButton.style.backgroundImage='url(img/list_audioPause.png)';
-				mxMusicLyricDivBEm.style.backgroundImage='url(img/details_pause.png)';
-				lyricArr=data.lyric.match(/\[[^[]+/g);
-				tempMusicId=musicId;
-				mxMusicFooter.display&&nextMusic();
+				mxMusicFooterButton.style.backgroundImage='url(img/list_audioPause.png)';//播放按钮1
+				mxMusicLyricDivBEm.style.backgroundImage='url(img/details_pause.png)';//播放按钮2
+				mxMusicLyricDivTEm.innerHTML='00:00';//当前播放位置
+				mxMusicLyricListUl.style.transform=mxMusicLyricListUl.style.WebkitTransform='none';
+				mxMusicLyricListUl.innerHTML='';//清空歌词
+				mxMusicLyricDivTSpan.style.width=0;//进度条归0
+				var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
+				var lyricDate=[];//存每句歌词时间
+				for(var i=0;i<lyricArr.length;i++){
+					var liNode=document.createElement('li');
+					liNode.innerHTML=lyricArr[i].substring(10).trim();
+					mxMusicLyricListUl.appendChild(liNode);
+					var tem=lyricArr[i].substring(1,9).split(':');
+					lyricDate.push((parseFloat(tem[0]*60)+parseFloat(tem[1])).toFixed(2));
+				}
+				mxAudio.addEventListener('canplay',autoPlayMusic,false);
+				function autoPlayMusic(){
+					var classNow=0;
+					mxMusicLyricDivTI.innerHTML=showTime(mxAudio.duration);//歌曲时长	
+					scale=200/mxAudio.duration;
+					clearInterval(timer);
+					timer=setInterval(function(){
+						var nowDate=mxAudio.currentTime;
+						mxMusicLyricDivTEm.innerHTML=showTime(nowDate);
+						if(jinduStrat.btn){
+							mxMusicLyricDivTSpan.style.width=scale*nowDate+'px';
+						}
+						for(var i=0;i<lyricDate.length;i++){
+							if(lyricDate[i]<nowDate&&lyricDate[i+1]>nowDate||i===lyricDate.length-1){
+								mxMusicLyricListUlLi[classNow].className='';
+								mxMusicLyricListUlLi[i].className='active';
+								classNow=i;
+								if(i>colorLyric){
+									mxMusicLyricListUl.style.transform=mxMusicLyricListUl.style.WebkitTransform='translate3d(0,'+(-36*(i-colorLyric))+'px,0)';
+								}else{
+									mxMusicLyricListUl.style.transform=mxMusicLyricListUl.style.WebkitTransform='translate3d(0,0,0)';
+								}
+								break;
+							}
+						}
+					},1000);
+					mxAudio.removeEventListener('canplay',autoPlayMusic,false);
+					abort=false;
+				}
 			}
 		});
 	}
-	//歌曲结束触发的事件
-	mxAudio.addEventListener('ended',function(){
-		clearInterval(timer);
-		mxMusicFooterButton.style.backgroundImage='url(img/list_audioPlay.png)';
-		mxMusicLyricDivBEm.style.backgroundImage='url(img/details_play.png)';
-		console.log('音乐结束')
-	},false);
-	//歌曲暂停/播放
-	mxMusicFooterButton.addEventListener('touchend',musicPause,false);
-	mxMusicLyricDivBEm.addEventListener('touchend',musicPause,false);
-	function musicPause(e){
-		if(mxAudio.paused){
-			mxAudio.play();
-			mxMusicFooterButton.style.backgroundImage='url(img/list_audioPause.png)';
-			mxMusicLyricDivBEm.style.backgroundImage='url(img/details_pause.png)';
-		}else{
-			mxAudio.pause();
-			mxMusicFooterButton.style.backgroundImage='url(img/list_audioPlay.png)';
-			mxMusicLyricDivBEm.style.backgroundImage='url(img/details_play.png)';
-		}
-		e.stopPropagation();
-	}
-	//上一首
-	mxMusicLyricDivBSpan.addEventListener('touchend',function(){
-		
-	},false);
-	//下一首
-	mxMusicLyricDivBI.addEventListener('touchend',function(){
-		tempMusicId++;
-		showMusic(tempMusicId);
-	},false);
+	function showTime(a){//秒数转换成小时分钟
+        a=parseInt(a);
+        var b=Math.floor(a%3600/60);
+        var c=Math.floor(a%60);
+        return toZero(b)+':'+toZero(c);
+    }
+	function toZero(a){
+		return a<10?'0'+a:''+a;
+    }
 	//界面能显示多少条歌词
 	var colorLyric=0;
 	function setLyricHeight(){
@@ -318,65 +362,111 @@ document.addEventListener('DOMContentLoaded',function(){
 	setLyricHeight();
 	window.addEventListener('resize',setLyricHeight,false);
 	//底部换出歌词界面
-	mxMusicFooter.musicId=-1;
-	mxMusicFooter.display=false;
 	mxMusicFooter.addEventListener('touchend',function(){
 		if(!mxAudio.src)return;
-		mxMusicFooter.display=true;
 		mxMusicLyric.style.transform=mxMusicLyric.style.WebkitTransform='translate3d(0,0,0)';
-		if(mxMusicFooter.musicId!=tempMusicId){
-			mxMusicFooter.musicId=tempMusicId;
-			nextMusic();
-		}
 	},false);
-	function nextMusic(){
-		mxMusicLyricDivTI.innerHTML=showTime(mxAudio.duration);
-		mxMusicLyricListUl.style.transform=mxMusicLyricListUl.style.WebkitTransform='none';
-		mxMusicLyricListUl.innerHTML='';
-		lyricDate=[];
-		mxMusicLyricDivTSpan.style.width=0;
-		mxMusicLyricDivTB.style.left='-7px';
-		var scale=200/mxAudio.duration;
-		var classNow=0;
-		for(var i=0;i<lyricArr.length;i++){
-			var liNode=document.createElement('li');
-			liNode.innerHTML=lyricArr[i].substring(10).trim();
-			mxMusicLyricListUl.appendChild(liNode);
-			var tem=lyricArr[i].substring(1,9).split(':');
-			lyricDate.push((parseFloat(tem[0]*60)+parseFloat(tem[1])).toFixed(2));
-		}
-		clearInterval(timer);
-		timer=setInterval(function(){
-			var nowDate=mxAudio.currentTime;
-			for(var i=0;i<lyricDate.length;i++){
-				if(lyricDate[i]<nowDate&&lyricDate[i+1]>nowDate||i===lyricDate.length-1){
-					mxMusicLyricListUlLi[classNow].className='';
-					mxMusicLyricListUlLi[i].className='active';
-					classNow=i;
-					i>colorLyric&&(mxMusicLyricListUl.style.transform=mxMusicLyricListUl.style.WebkitTransform='translate3d(0,'+(-36*(i-colorLyric))+'px,0)');
-					break;
-				}
-			}
-			mxMusicLyricDivTEm.innerHTML=showTime(mxAudio.currentTime);	
-			mxMusicLyricDivTSpan.style.width=scale*mxAudio.currentTime+'px';
-			mxMusicLyricDivTB.style.left=(-7+scale*mxAudio.currentTime)+'px';
-			console.log(1)
-		},1000);
-	}
 	//隐藏歌词界面
 	mxMusicLyricEm.addEventListener('touchend',function(){
 		mxMusicLyric.style.transform=mxMusicLyric.style.WebkitTransform='translate3d(0,100%,0)';
-		mxMusicFooter.display=false;
 	},false);
-	function showTime(a){//秒数转换成小时分钟
-        a=parseInt(a);
-        var b=Math.floor(a%3600/60);
-        var c=Math.floor(a%60);
-        return toZero(b)+':'+toZero(c);
-    }
-	function toZero(a){
-		return a<10?'0'+a:''+a;
-    }
+	//拖拽进度条
+	jinduStrat.X=0;
+	jinduStrat.W=0;
+	jinduStrat.w=0;
+	jinduStrat.btn=true;
+	mxMusicLyricDivTB.addEventListener('touchstart',jinduStrat,false);
+	function jinduStrat(e){
+		jinduStrat.X=e.changedTouches[0].pageX;
+		jinduStrat.W=mxMusicLyricDivTSpan.offsetWidth;
+		jinduStrat.btn=false;
+		document.addEventListener('touchmove',jinduMove,false);
+		document.addEventListener('touchend',jinduEnd,false);
+		e.preventDefault();
+		e.stopPropagation();
+		mxMusicLyricDivT.removeEventListener('touchend',clickJinduFn,false);
+	}
+	function jinduMove(e){
+		jinduStrat.w=e.changedTouches[0].pageX-jinduStrat.X+jinduStrat.W;
+		if(jinduStrat.w>198){
+			jinduStrat.w=198;
+		}else if(jinduStrat.w<0){
+			jinduStrat.w=0;
+		}
+		mxMusicLyricDivTSpan.style.width=jinduStrat.w+'px';
+	}
+	function jinduEnd(e){
+		document.removeEventListener('touchmove',jinduMove,false);
+		document.removeEventListener('touchend',jinduEnd,false);
+		mxAudio.currentTime=jinduStrat.w/scale;
+		jinduStrat.btn=true;
+		mxMusicLyricDivT.addEventListener('touchend',clickJinduFn,false);
+	}
+	//点击进度条
+	mxMusicLyricDivT.addEventListener('touchend',clickJinduFn,false);
+	function clickJinduFn(e){
+		var w=e.changedTouches[0].pageX-this.getBoundingClientRect().left;
+		mxMusicLyricDivTSpan.style.width=w+'px';
+		mxAudio.currentTime=w/scale;
+	}
+	//歌曲暂停/播放
+	mxMusicFooterButton.addEventListener('touchend',musicPause,false);
+	mxMusicLyricDivBEm.addEventListener('touchend',musicPause,false);
+	function musicPause(e){
+		e.stopPropagation();
+		if(!mxAudio.src)return;
+		if(mxAudio.paused){
+			mxAudio.play();
+			mxMusicFooterButton.style.backgroundImage='url(img/list_audioPause.png)';
+			mxMusicLyricDivBEm.style.backgroundImage='url(img/details_pause.png)';
+		}else{
+			mxAudio.pause();
+			mxMusicFooterButton.style.backgroundImage='url(img/list_audioPlay.png)';
+			mxMusicLyricDivBEm.style.backgroundImage='url(img/details_play.png)';
+		}
+	}
+	//上一首
+	mxMusicLyricDivBSpan.addEventListener('touchend',function(){
+		nextMusicFn(true);
+	},false);
+	//下一首
+	mxMusicLyricDivBI.addEventListener('touchend',function(){
+		nextMusicFn(false);
+	},false);
+	function nextMusicFn(btn){
+		clearInterval(timer);
+		if(mxMusicLyricDivBB.btn==1||mxMusicLyricDivBB.btn==2){//循环播放、单曲循环
+			if(btn){
+				tempMusicId==1?tempMusicId=mxMusicListDiv.length:tempMusicId--;
+			}else{
+				tempMusicId==mxMusicListDiv.length?tempMusicId=1:tempMusicId++;
+			}
+		}else if(mxMusicLyricDivBB.btn==0){//随机播放
+			tempMusicId=parseInt(Math.random()*musicArr.length)+1;
+		}
+		showMusic(tempMusicId);
+	}
+	//随机播放、单曲循环、列表循环
+	mxMusicLyricDivBB.btn=1;
+	mxMusicLyricDivBB.addEventListener('touchend',function(){
+		if(mxMusicLyricDivBB.btn==0){
+			this.style.backgroundPositionY='7px';
+			mxMusicLyricDivBB.btn=1;
+			mxAudio.removeAttribute('loop');
+		}else if(mxMusicLyricDivBB.btn==1){
+			this.style.backgroundPositionY='-19px';
+			mxMusicLyricDivBB.btn=2;
+			mxAudio.setAttribute('loop','loop');
+		}else if(mxMusicLyricDivBB.btn==2){
+			this.style.backgroundPositionY='-45px';
+			mxMusicLyricDivBB.btn=0;
+			mxAudio.removeAttribute('loop');
+		}
+	},false);
+	//歌曲结束触发的事件
+	mxAudio.addEventListener('ended',function(){
+		nextMusicFn(false);
+	},false);
 })();
 	
 },false);
@@ -403,13 +493,8 @@ document.addEventListener('DOMContentLoaded',function(){
     <h1 class="mx-music-h1">魔新大圣-音乐播放器</h1>
     <!-- 音乐列表 -->
     <section class="mx-music-content">
-    	<ul class="mx-music-list">
-        	<!--<li>
-            	<h2>听你说</h2>
-                <p>魔新</p>
-                <div class="dis-blo"></div>
-            </li>-->
-        </ul>
+    	<ul class="mx-music-list"><!--音乐列表--></ul>
+        <div class="mx-music-more">正在加载...</div>
     </section>
     <!-- 歌词界面 -->
     <section class="mx-music-lyric">
@@ -418,22 +503,20 @@ document.addEventListener('DOMContentLoaded',function(){
         <em></em>
         <div class="mx-music-lyric-list">
         	<div>
-            	<ul>
-        			<!--<li>在这个风起云涌的战场上</li>-->
-            	</ul>
+            	<ul><!--歌词--></ul>
             </div>
         </div>
         <div class="mx-music-lyric-div">
         	<div class="t">
                 <em>00:00</em>
                 <i></i>
-                <span></span>
-                <b></b>
+                <span><b></b></span>
             </div>
         	<div class="b">
             	<span></span>
                 <em></em>
                 <i></i>
+                <b></b>
             </div>  
         </div>
     </section>
