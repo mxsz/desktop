@@ -1,0 +1,22 @@
+[
+	{"id":"1","name":"张杰","musicName":"逆战"},
+	{"id":"2","name":"张学友","musicName":"烦恼歌"},
+	{"id":"3","name":"周杰伦","musicName":"红尘客栈"},
+	{"id":"4","name":"李建","musicName":"异乡人"},
+	{"id":"5","name":"陈小春","musicName":"相依为命"},
+	{"id":"6","name":"李荣浩","musicName":"不将就"},
+	{"id":"7","name":"郝云","musicName":"去大理"},
+	{"id":"8","name":"宋冬野","musicName":"董小姐"},
+	{"id":"9","name":"许巍","musicName":"曾经的你"},
+	{"id":"10","name":"朴树","musicName":"那些花儿"},
+	{"id":"11","name":"Sara、刘佳","musicName":"爱很美"},
+	{"id":"12","name":"郁可唯&林凡","musicName":"听你说"},
+	{"id":"13","name":"TFBOYS","musicName":"大梦想家"},
+	{"id":"14","name":"周传雄","musicName":"冬天的秘密"},
+	{"id":"15","name":"周传雄","musicName":"有没有一首歌会让你想起我"},
+	{"id":"16","name":"小黄人","musicName":"我的天空"},
+	{"id":"17","name":"李玉刚、石头","musicName":"雨花石"},
+	{"id":"18","name":"葛林","musicName":"林中鸟"},
+	{"id":"19","name":"田一龙","musicName":"一定要爱你"},
+	{"id":"20","name":"云朵","musicName":"我的楼兰"}
+]
