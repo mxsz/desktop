@@ -1,0 +1,387 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="description" content="h5c3整屏切换网页">
+<meta name="keywords" content="整屏切换,特效">
+<title>魔新使者--移动端整屏切换</title>
+<link href="img/xiaotubiao.ico" rel="icon">
+<script>
+!function(){
+	var docEle=document.documentElement;
+	var	resize='onorientationchange' in window ? 'orientationchange' : 'resize';
+	var	fn=function(){
+			var width=docEle.clientWidth;
+			width&&(docEle.style.fontSize=100*(width/640)+'px');
+		};
+	fn();
+	window.addEventListener(resize,fn,false);
+}();
+</script>
+<style>
+*{margin:0;padding:0;}
+html,body{width:100%;height:100%;}
+ul{list-style:none;}
+img{vertical-align:middle;}
+#mx-main{width:100%;height:100%;overflow:hidden;position:relative;}
+
+#mx-loading{width:100%;height:100%;background:#fff;position:absolute;left:0;top:0;z-index:20;-webkit-transition:500ms;transition:500ms;}
+#mx-loading ul{height:50px;position:absolute;top:50%;left:50%;margin:-25px 0 0 -30px;}
+#mx-loading ul li{width:5px;height:50px;float:left;margin-right:5px;background:#5fb336;-webkit-animation:loadingRun 2s infinite;animation:loadingRun 2s infinite;}
+#mx-loading ul li:nth-of-type(1){-webkit-animation-delay:-1.1s;animation-delay:-1.1s;}
+#mx-loading ul li:nth-of-type(2){-webkit-animation-delay:-0.9s;animation-delay:-0.9s;}
+#mx-loading ul li:nth-of-type(3){-webkit-animation-delay:-0.7s;animation-delay:-0.7s;}
+#mx-loading ul li:nth-of-type(4){-webkit-animation-delay:-0.5s;animation-delay:-0.5s;}
+#mx-loading ul li:nth-of-type(5){-webkit-animation-delay:-0.3s;animation-delay:-0.3s;}
+#mx-loading ul li:nth-of-type(6){-webkit-animation-delay:-0.1s;animation-delay:-0.1s;}
+#mx-loading div{position:absolute;top:50%;width:100%;margin-top:50px;text-align:center;font-size:20px;color:#5fb336;}
+@-webkit-keyframes loadingRun{
+  0%,100%{-webkit-transform:scaleY(1);}
+  40%{-webkit-transform:scaleY(0.3);}
+}
+@keyframes loadingRun{
+  0%,100%{transform:scaleY(1);}
+  40%{transform:scaleY(0.3);}
+}
+
+#mx-arrow{width:.9rem;height:.52rem;background:url(img/arr.png) no-repeat center center;background-size:100% 100%;position:absolute;bottom:.5rem;left:50%;margin-left:-.45rem;z-index:19;-webkit-transform:translate(0,.42rem);transform:translate(0,.42rem);-webkit-animation:arrowTop 1.5s infinite;animation:arrowTop 1.5s infinite;}
+@-webkit-keyframes arrowTop{
+	0%{-webkit-transform:translate(0,.42rem);opacity:0;}
+	60%{-webkit-transform:translate(0,.12rem);opacity:1;}
+	100%{-webkit-transform:translate(0,0);opacity:0;}
+}
+@keyframes arrowTop{
+	0%{transform:translate(0,.42rem);opacity:0;}
+	60%{transform:translate(0,.12rem);opacity:1;}
+	100%{transform:translate(0,0);opacity:0;}
+}
+
+#mx-music{width:.55rem;height:.55rem;background:url(img/music.png) no-repeat;position:absolute;top:.2rem;right:.2rem;z-index:18;background-size:100% 100%;}
+#mx-music.run{-webkit-animation:musicRotate 1.5s infinite linear;}
+@-webkit-keyframes musicRotate{
+	from{-webkit-transform:rotate(0deg);}
+	to{-webkit-transform:rotate(360deg);}
+}
+@keyframes musicRotate{
+	from{transform:rotate(0deg);}
+	to{transform:rotate(360deg);}
+}
+
+#mx-screen-page{width:100%;height:100%;position:absolute;left:0;top:0;z-index:3;font-family:Tahoma,Arial,Roboto,"Droid Sans","Helvetica Neue","Droid Sans Fallback","Heiti SC",sans-self;}
+#mx-screen-page > div{width:100%;height:100%;position:absolute;left:0;top:0;z-index:1;background-size:cover;background-repeat:no-repeat;background-position:center top;display:none;}
+#mx-screen-page > .active{z-index:2;}
+#mx-screen-page > div:nth-of-type(1){background-image:url(img/b.png);}
+#mx-screen-page > div:nth-of-type(2){background-image:url(img/c.png);}
+#mx-screen-page > div:nth-of-type(3){background-image:url(img/d.png);}
+#mx-screen-page > div:nth-of-type(4){background-image:url(img/e.png);}
+#mx-screen-page > div:nth-of-type(5){background-image:url(img/ad1.png);}
+#mx-screen-page > div:nth-of-type(6){background-image:url(img/ad4.png);}
+.mx-screen-page-ul{position:absolute;top:65%;color:#fff;font-size:.3rem;left:1rem;}
+.mx-screen-page-ul li{opacity:0;}
+.mx-screen-page-ul li:nth-of-type(odd){-webkit-transform:translate3d(-1.50rem,0,0);transform:translate3d(-1.50rem,0,0);}
+.mx-screen-page-ul li:nth-of-type(even){-webkit-transform:translate3d(2.50rem,0,0);transform:translate3d(2.50rem,0,0);}
+#mx-screen-page > div:nth-of-type(2) div{width:.9rem;height:.9rem;position:absolute;left:2.75rem;top:6rem;}
+#mx-screen-page > div:nth-of-type(2) div:nth-of-type(1).active{top:29%;left:2.72rem;}
+#mx-screen-page > div:nth-of-type(2) div:nth-of-type(2).active{top:43%;left:4.50rem;}
+#mx-screen-page > div:nth-of-type(2) div:nth-of-type(3).active{top:64%;left:4.60rem;}
+#mx-screen-page > div:nth-of-type(2) div:nth-of-type(4).active{top:76%;left:2.72rem;}
+#mx-screen-page > div:nth-of-type(2) div:nth-of-type(5).active{top:64%;left:.9rem;}
+#mx-screen-page > div:nth-of-type(2) div:nth-of-type(6).active{top:43%;left:.9rem;}
+#mx-screen-page > div:nth-of-type(3) div{width:4.6rem;height:2.22rem;position:absolute;left:50%;margin-left:-2.3rem;bottom:1.1rem;}
+#mx-screen-page > div:nth-of-type(4) p{width:0;height:0;border:1px #fff solid;position:absolute;-webkit-box-shadow:0 0 .3rem #fff;box-shadow:0 0 .3rem #fff;border-radius:.05rem;font-size:.2rem;color:#fff;word-wrap:break-word;padding:.05rem;overflow:hidden;}
+#mx-screen-page > div:nth-of-type(4) p:nth-of-type(1).active{width:1.82rem;height:2.58rem;}
+#mx-screen-page > div:nth-of-type(4) p:nth-of-type(2).active{width:3.07rem;height:1.40rem;}
+#mx-screen-page > div:nth-of-type(4) p:nth-of-type(3).active{width:0.96rem;height:2.27rem;}
+#mx-screen-page > div:nth-of-type(4) p:nth-of-type(4).active{width:2.33rem;height:1.29rem;}
+#mx-screen-page > div:nth-of-type(4) p:nth-of-type(5).active{width:1.66rem;height:2.40rem;}
+</style>
+<script>
+/*
+	animation-name:none		//定义动画的名称(none为默认值，当值为none时，将没有任何动画效果,附几个animation给一个元素，只需要用逗号隔开)
+	animation-duration:0	//指定元素播放动画所持续的时间(默认值为0,单位秒)
+	animation-timing-function:ease		//(动画方式linear ease ease-in ease-out ease-in-out)
+	animation-delay:0		//延时(默认值0,单位秒)
+	animation-iteration-count:1			//指定元素播放动画的循环次数(默认值为1,infinite为无限次数循环)
+	animation-direction:normal			//指定元素动画播放的方向(默认值为normal) alternate
+	animation-play-state:running		//控制元素动画的播放状态(running为默认值)通过paused将正在播放的动画停下,running将暂停的动画重新播放	
+	animation:[<animation-name> || <animation-duration> || <animation-timing-function> || <animation-delay> || <animation-iteration-count> || <animation-direction>] 		//合并写法
+	
+	
+	animationstart		//动画开始时触发，移动端兼容webkitAnimationStart
+	animationiteration	//动画重复播放时触发，移动端兼容webkitAnimationIteration(animation-iteration-count:1;这个事件不再触发)
+	animationend		//动画全部完成后触发，移动端兼容webkitAnimationEnd
+	elapsedTime			//事件对象下的一个属性，记录动画重复播放的次数
+*/
+function addEvent(obj,type,fn){
+	obj.addEventListener(type,fn,false);
+}
+function removeEvent(obj,type,fn){
+	obj.removeEventListener(type,fn,false);
+}
+addEvent(document,'DOMContentLoaded',function(){
+	var mxMain=document.querySelector('#mx-main');
+	var mxScreenPage=document.querySelector('#mx-screen-page');
+	var mxScreenPageDiv=mxScreenPage.children;
+	var htmlHeight=document.documentElement.clientHeight;
+	addEvent(window,'resize',function(){
+		htmlHeight=document.documentElement.clientHeight;
+	});
+	addEvent(document,'touchmove',function(e){
+   		e.preventDefault();
+	});
+	function loading(){
+		var mxLoading=document.querySelector('#mx-loading');
+		var imgArr=['a.png','b.png','c.png','d.png','e.png','ad1.png','ad2.png','ad3.png','ad4.png','arr.png','c1.png','c2.png','c3.png','c4.png','c5.png','c6.png','d1.png','music.png'];
+		var iNow=0;
+		for(var i=0;i<imgArr.length;i++){
+			var oImg=new Image();
+			oImg.onload=function(){
+				iNow++;
+				if(iNow===imgArr.length){
+					mxLoading.style.opacity=0;
+					addEvent(mxLoading,'transitionend',endFn);
+					addEvent(mxLoading,'webkitTransitionEnd',endFn);
+					function endFn(){
+						mxMain.removeChild(mxLoading);
+						inOutAimation[0].inAn();
+						musicShow();
+					}
+				}
+			};
+			oImg.onerror=function(){
+				mxMain.removeChild(mxLoading);
+				inOutAimation[0].inAn();
+				musicShow();
+			};
+			oImg.src='img/'+imgArr[i];
+		}
+	}
+	loading();
+	
+	function musicShow() {
+		var mxMusic=document.querySelector('#mx-music');
+		var mxAudio=mxMusic.getElementsByTagName('audio')[0];
+        mxAudio.play();
+        mxMusic.className='run';
+		addEvent(mxMusic,'touchend',function(){
+			if(mxAudio.paused){
+				mxAudio.play();
+				mxMusic.className='run';
+			}else{
+				mxAudio.pause();
+				mxMusic.className='';
+			}
+		});
+    }
+	
+	function slide(){
+		var disY=0;
+		var index=0;
+		var bBtn=true;
+		var scale=0.25;
+		var iNow=0;
+		var iLen=mxScreenPageDiv.length;
+		for(var i=0;i<iLen;i++){
+			addEvent(mxScreenPageDiv[i],'touchstart',function(e){
+				if(!bBtn)return;
+				bBtn=false;
+				var ev=e.changedTouches[0];
+				disY=ev.pageY;
+				index=parseInt(this.dataset.index);
+				addEvent(this,'touchmove',moveFn);
+				addEvent(this,'touchend',endFn);
+				var This=this;
+				function moveFn(e){
+					var ev=e.changedTouches[0];
+					var pageY=ev.pageY;
+					var s=(pageY-disY)*scale;
+					
+					if(pageY-disY<0){
+						this.style.transform=this.style.WebkitTransform='translate3d(0,'+s+'px,0) scale('+(1-Math.abs(s/htmlHeight))+')';
+						iNow=index===iLen-1?0:index+1;
+						mxScreenPageDiv[iNow].style.transform='translate3d(0,'+(htmlHeight+(pageY-disY))+'px,0)';
+						for(var j=0;j<iLen;j++){
+							mxScreenPageDiv[j].className='';
+						}
+						mxScreenPageDiv[iNow].style.display='block';
+						mxScreenPageDiv[iNow].className='active';
+                    }else if(pageY-disY>0){
+                        this.style.transform=this.style.WebkitTransform='translate3d(0,'+s+'px,0) scale('+(1-Math.abs(s/htmlHeight))+')';
+						iNow=index===0?iLen-1:index-1;
+						mxScreenPageDiv[iNow].style.transform='translate3d(0,'+(-htmlHeight+(pageY-disY))+'px,0)';
+						for(var j=0;j<iLen;j++){
+							mxScreenPageDiv[j].className='';
+						}
+						mxScreenPageDiv[iNow].style.display='block';
+						mxScreenPageDiv[iNow].className='active';
+                    }
+				}
+				function endFn(e){
+					var ev=e.changedTouches[0];
+					if(ev.pageY-disY<0){
+						this.style.transform=this.style.WebkitTransform='translate3d(0,'+-htmlHeight*scale+'px,0) scale('+(1-scale)+')';
+                    }else if(ev.pageY-disY>0){
+						this.style.transform=this.style.WebkitTransform='translate3d(0,'+htmlHeight*scale+'px,0) scale('+(1-scale)+')';
+                    }
+					this.style.transition=this.style.WebkitTransition='300ms';
+					mxScreenPageDiv[iNow].style.transform=mxScreenPageDiv[iNow].style.WebkitTransform='translate3d(0,0,0)';
+					mxScreenPageDiv[iNow].style.transition=mxScreenPageDiv[iNow].style.WebkitTransition='300ms';
+					removeEvent(this,'touchmove',moveFn);
+					removeEvent(this,'touchend',endFn);
+				}
+			});
+		}
+		for(var i=0;i<iLen;i++){
+			addEvent(mxScreenPageDiv[i],'webkitTransitionEnd',endFn);
+			addEvent(mxScreenPageDiv[i],'transitionend',endFn);
+		}
+		function endFn(e){
+			if(e.target!==this)return;
+			bBtn=true;
+			for(var i=0;i<iLen;i++){
+				mxScreenPageDiv[i].style.transform=mxScreenPageDiv[iNow].style.WebkitTransform='none';
+				mxScreenPageDiv[i].style.transition=mxScreenPageDiv[iNow].style.WebkitTransition='none';
+				mxScreenPageDiv[i].className='';
+				mxScreenPageDiv[i].style.display='none';
+			}
+        	mxScreenPageDiv[iNow].style.display='block';
+			if (inOutAimation[index]) {
+                inOutAimation[index].outAn();
+            }
+            if (inOutAimation[iNow]) {
+                inOutAimation[iNow].inAn();
+            }
+		}
+	}
+	slide();
+	var inOutAimation = [
+		{
+			outAn:function(){
+				var aLi=mxScreenPageDiv[0].getElementsByTagName('li');
+				for(var i=0;i<aLi.length;i++){
+					aLi[i].style.opacity=0;
+					aLi[i].style.transform=aLi[i].style.WebkitTransform=i%2?'translate3d(-1.50rem,0,0)':'translate3d(2.50rem,0,0)';
+				}
+			},
+			inAn:function(){
+				var aLi=mxScreenPageDiv[0].getElementsByTagName('li');
+				for(var i=0;i<aLi.length;i++){
+					aLi[i].style.opacity=1;
+					aLi[i].style.transform=aLi[i].style.WebkitTransform='translate3d(0,0,0)';
+					aLi[i].style.transition=aLi[i].style.WebkitTransition='1s';
+				}
+			}
+		}, 
+		{
+			outAn:function(){
+				var aDiv=mxScreenPageDiv[1].getElementsByTagName('div');
+				for(var i=0;i<aDiv.length;i++){
+					aDiv[i].className='';
+					aDiv[i].style.transform=aDiv[i].style.WebkitTransform='rotate(0)';
+				}
+			},
+			inAn:function(){
+				var aDiv=mxScreenPageDiv[1].getElementsByTagName('div');
+				for(var i=0;i<aDiv.length;i++){
+					aDiv[i].className='active';
+					aDiv[i].style.transform=aDiv[i].style.WebkitTransform='rotate(720deg)';
+					aDiv[i].style.transition=aDiv[i].style.WebkitTransition='1s';
+				}
+			}
+		},
+		{
+			outAn:function() {
+				var aDiv=mxScreenPageDiv[2].getElementsByTagName('div')[0];
+				aDiv.style.transform=aDiv.style.WebkitTransform='rotateY(0)';
+			},
+			inAn: function() {
+				var aDiv=mxScreenPageDiv[2].getElementsByTagName('div')[0];
+				aDiv.style.transform=aDiv.style.WebkitTransform='rotateY(360deg)';
+				aDiv.style.transition=aDiv.style.WebkitTransition='1s';
+			}
+		},
+		{
+			outAn: function() {
+				var aP=mxScreenPageDiv[3].getElementsByTagName('p');
+				for(var i=0;i<aP.length;i++){
+					aP[i].className='';
+				}
+			},
+			inAn: function() {
+				var aP=mxScreenPageDiv[3].getElementsByTagName('p');
+				for(var i=0;i<aP.length;i++){
+					aP[i].className='active';
+					aP[i].style.transition=aP[i].style.WebkitTransition='1s';
+				}
+			}
+		}
+	];
+});
+</script>
+</head>
+
+<body>
+<div id="mx-main">
+	<!-- loading -->
+	<div id="mx-loading">
+    	<ul>
+        	<li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+        <div>网页正在玩命加载中...</div>
+    </div>
+    <!-- 箭头 -->
+    <div id="mx-arrow"></div>
+    <!-- 音乐 -->
+    <div id="mx-music">
+    	<audio loop src="img/music.mp3" preload="auto" style="display:none;"></audio>
+    </div>
+    <!-- 每一屏 -->
+    <section id="mx-screen-page">
+    	<div data-index="0" style="display:block;">
+        	<ul class="mx-screen-page-ul">
+            	<li>
+                	<p>曾经做为前端开发的你</p>
+                    <p>解决PC兼容性而焦头烂额</p>
+                </li>
+                <li>
+                	<p>而今</p>
+                    <p>移动端H5应用疯狂来袭</p>
+                </li>
+                <li>
+                	<p>你是否已准备充分</p>
+                    <p>学习新技能</p>
+                </li>
+                <li>
+                    <p>曾破茧成蝶、重获新生？</p>
+                </li>
+            </ul>
+        </div>
+        <div data-index="1">
+        	<div style="background:url(img/c1.png) no-repeat;background-size:100% 100%;"></div>
+            <div style="background:url(img/c2.png) no-repeat;background-size:100% 100%;"></div>
+            <div style="background:url(img/c3.png) no-repeat;background-size:100% 100%;"></div>
+            <div style="background:url(img/c4.png) no-repeat;background-size:100% 100%;"></div>
+            <div style="background:url(img/c5.png) no-repeat;background-size:100% 100%;"></div>
+            <div style="background:url(img/c6.png) no-repeat;background-size:100% 100%;"></div>
+        </div>
+        <div data-index="2">
+        	<div style="background:url(img/d1.png) no-repeat;background-size:100% 100%;"></div>
+        </div>
+        <div data-index="3">
+        	<p style="left:.27rem;top:15%;">transform transition rotate scale translate keyframes animation webkitTransitionEnd webkitAnimationIteration elapsedTime perspective…</p>
+            <p style="left:3.12rem;top:19%;">drawImage lineWidth strokeStyle lineCap globalCompositeOperation moveTo lineTo stroke arc getImageData…</p>
+            <p style="left:5.23rem;top:45%;">audio autoplay loop paused play pause…</p>
+            <p style="left:3.29rem;top:80%;">viewport touchstart touchmove touchend changedTouches…</p>
+            <p style="left:.6rem;top:73%;">on() off() css() eq() siblings() show() hide() find() trigger()remove() &nbsp;animate() originalEv...</p>
+        </div>
+        <div data-index="4"></div>
+        <div data-index="5"></div>
+    </section>
+</div>
+</body>
+</html>
