@@ -297,6 +297,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	function resetData(now){
 		clearInterval(timer);
 		mxMusicListDiv[classNow].className='';
+		mxMusicListDiv[classNow].innerHTML='';
 		mxMusicListDiv[now].innerHTML='加载中...';
 		mxMusicListDiv[now].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='running';
 		mxLyricTitleH4.innerHTML=mxMusicFooterLi[1].innerHTML=musicArr[now].musicName;//歌曲标题
