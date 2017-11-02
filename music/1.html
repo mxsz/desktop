@@ -320,6 +320,7 @@ document.addEventListener('DOMContentLoaded',function(){
 			success:function(data){
 				var data=JSON.parse(data);
 				mxAudio.src='music/'+data.audio;//设置歌曲路劲
+				mxAudio.play();//播放歌曲
 				mxLyricKeyBottomLi[4].innerHTML='坏';
 				mxAudio.addEventListener('canplaythrough',autoPlayMusic,false);
 				function autoPlayMusic(){
@@ -342,7 +343,6 @@ document.addEventListener('DOMContentLoaded',function(){
 					},100);
 					mxMusicListDiv[classNow].innerHTML='';
 					mxMusicListDiv[classNow].className='bg';
-					mxAudio.play();//播放歌曲
 					mxMusicFooterLi[0].style.backgroundImage='url(img/'+data.img+')';//歌手头像
 					mxLyricKeyTopLi[2].innerHTML=showTime(mxAudio.duration);//歌曲时长
 					mxMusicFooterLi[3].style.backgroundPositionX='-1.61rem';//播放按钮1
