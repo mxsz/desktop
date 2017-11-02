@@ -308,6 +308,7 @@ document.addEventListener('DOMContentLoaded',function(){
 		mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='none';//重置位置
 		mxLyricListUl.innerHTML='正在努力加载歌词...';//清空歌词
 		mxLyricKeyTopLiDiv.style.width=0;//进度条归0
+		mxAudio.pause();//暂停音频
 		classNow=now;
 	}
 	clickMusic();
