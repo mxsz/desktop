@@ -408,7 +408,6 @@ on(document,'touchstart',function(e){e.preventDefault();});
 		mxAudio.pause();
 		classNow=now;
 	}
-	var temTimer=0;
 	function showMusic(musicId){
 		abort&&xhr.abort();
 		abort=!abort;
@@ -417,10 +416,9 @@ on(document,'touchstart',function(e){e.preventDefault();});
 			dataType:'json',
 			success:function(data){
 				mxAudio.src='music/'+data.audio;
-				temTimer=setInterval(function(){alert( mxAudio.readyState )},1000);				
+				abort=false;
 				on(mxAudio,'canplay',function (){
 					off(mxAudio,'canplay');
-					clearInterval(temTimer);
 					var iNow=0;
 					var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
 					var lyricDate=[];//存每句歌词时间
@@ -466,7 +464,6 @@ on(document,'touchstart',function(e){e.preventDefault();});
 							}
 						}
 					},1000);
-					abort=false;
 				});
 			}
 		});
