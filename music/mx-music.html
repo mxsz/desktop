@@ -375,7 +375,7 @@ on(document,'touchstart',function(e){e.preventDefault();});
 				bBtn=e.changedTouches[0].pageY===disY?true:false;
 			});
 			on(this,'touchend',function (e){
-				if(bBtn){
+				if(bBtn&&!abort){
 					var liNode=e.target.tagName.toLowerCase()!=='li'?e.target.parentNode:e.target;
 					var musicId=liNode.getAttribute('musicId');
 					if(tempMusicId==musicId)return;
@@ -405,7 +405,7 @@ on(document,'touchstart',function(e){e.preventDefault();});
 		mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='none';//重置位置
 		mxLyricListUl.innerHTML='音乐正在玩命加载中...';//清空歌词
 		mxLyricKeyTopLiDiv.style.width=0;//进度条归0
-		mxAudio.src='';
+		mxAudio.pause();
 		classNow=now;
 	}
 	
@@ -417,8 +417,9 @@ on(document,'touchstart',function(e){e.preventDefault();});
 			dataType:'json',
 			success:function(data){
 				mxAudio.src='music/'+data.audio;
+				mxAudio.play();//播放歌曲
 				on(mxAudio,'canplaythrough',function (){
-					off(this,'canplaythrough');
+					off(mxAudio,'canplaythrough');
 					var iNow=0;
 					var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
 					var lyricDate=[];//存每句歌词时间
@@ -465,7 +466,6 @@ on(document,'touchstart',function(e){e.preventDefault();});
 					},1000);
 					abort=false;
 				});
-				mxAudio.play();//播放歌曲
 			}
 		});
 	}
