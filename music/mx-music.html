@@ -417,7 +417,7 @@ on(document,'touchstart',function(e){e.preventDefault();});
 			dataType:'json',
 			success:function(data){
 				mxAudio.src='music/'+data.audio;
-				temTimer=setInterval(function(){mxAudio.play();},100);				
+				temTimer=setInterval(function(){alert( mxAudio.readystate )},1000);				
 				on(mxAudio,'canplay',function (){
 					off(mxAudio,'canplay');
 					clearInterval(temTimer);
