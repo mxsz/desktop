@@ -396,6 +396,7 @@ on(document,'touchstart',function(e){e.preventDefault();});
 		mxMusicListDiv[classNow].innerHTML='';
 		mxMusicListDiv[now].innerHTML='加载中...';
 		mxMusicListDiv[now].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='running';
+		mxMusicFooterLi[0].style.backgroundImage='url(img/initbg.png)';//歌手头像
 		mxLyricTitleH4.innerHTML=mxMusicFooterLi[1].innerHTML=musicArr[now].musicName;//歌曲标题
 		mxMusicFooterLi[2].innerHTML=musicArr[now].name;//歌手名字
 		mxMusicFooterLi[3].style.backgroundPositionX='-.8rem';//播放按钮1
@@ -417,6 +418,7 @@ on(document,'touchstart',function(e){e.preventDefault();});
 			success:function(data){
 				mxAudio.src='music/'+data.audio;
 				on(mxAudio,'canplaythrough',function (){
+					off(this,'canplaythrough');
 					mxAudio.play();//播放歌曲
 					var iNow=0;
 					var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
@@ -462,7 +464,6 @@ on(document,'touchstart',function(e){e.preventDefault();});
 							}
 						}
 					},1000);
-					off(this,'canplaythrough');
 					abort=false;
 				});
 				
@@ -532,7 +533,7 @@ on(document,'touchstart',function(e){e.preventDefault();});
 	on(mxLyricKeyBottomLi[2],'touchend',musicPause);
 	function musicPause(e){
 		e.stopPropagation();
-		if(!mxAudio.src)return;
+		if(!mxAudio.src||abort)return;
 		if(mxAudio.paused){
 			mxAudio.play();
 			mxMusicFooterLi[3].style.backgroundPositionX='-1.61rem';//播放按钮1
@@ -547,11 +548,11 @@ on(document,'touchstart',function(e){e.preventDefault();});
 	}
 	//上一首
 	on(mxLyricKeyBottomLi[1],'touchend',function(){
-		nextMusicFn(true);
+		!abort&&nextMusicFn(true);
 	});
 	//下一首
 	on(mxLyricKeyBottomLi[3],'touchend',function(){
-		nextMusicFn(false);
+		!abort&&nextMusicFn(false);
 	});
 	function nextMusicFn(btn){
 		if(mxLyricKeyBottomLi[0].btn==1||mxLyricKeyBottomLi[0].btn==2){//循环播放、单曲循环
