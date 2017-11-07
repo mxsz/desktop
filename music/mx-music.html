@@ -113,393 +113,25 @@ a{text-decoration:none;}
 }
 </style>
 <script>
-function ajax(obj){
-	obj.method = obj.method || 'get';
-	obj.async = obj.async || true;
-	var xhr=new XMLHttpRequest();
-	var data=(function(datas){
-		var arr=[];
-		for(var i in datas){
-			arr.push(encodeURIComponent(i)+'='+encodeURIComponent(datas[i]));
-		}
-		return arr.join('&');
-	})(obj.data);
-	if(obj.method === 'get'){
-		xhr.open('get',obj.url+'?'+data+'&'+Math.random(),obj.async);
-		xhr.send(null);
-	}else{
-		xhr.open('post',obj.url,obj.async);
-		xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
-		xhr.send(data);
-	}
-	if(obj.async===true){
-		xhr.onreadystatechange=function(){//当xhr.readyState值改变时触发的事件
-			xhr.readyState===4&&callback();
-		};
-	}else{	
-		callback();
-	}
-	function callback(){
-		if(xhr.status===200){
-			obj.success(xhr.responseText);//xhr.responseText后台返回的值
-		}else{
-			//console.log('错误代号：' + xhr.status + '，错误信息：' + xhr.statusText);
-		}
-	}
-	return xhr;
-}
-document.addEventListener('DOMContentLoaded',function(){
-	
-(function(){
-	/*
-		音频部分属性方法事件
-		audio.src				设置或返回音频/视频路劲
-		audio.paused			设置或返回音频/视频是否暂停，暂停为true
-		audio.duration			返回音频/视频总时长（以秒计）
-		audio.currentTime		设置或返回音频/视频播放了多少（以秒计）
-		audio.loop				设置值为"loop"可以循环播放音频/视频
-		audio.play()			开始播放音频/视频
-		audio.pause()			暂停当前播放的音频/视频
-		audio.load()			重新加载音频/视频元素
-		canPlayType()			检测浏览器是否能播放指定的音频/视频类型
-		canplaythrough			当浏览器可以开始播放音频/视频时触发。
-		ended					音频/视频结束后触发
-	*/
-	document.addEventListener('touchstart',function(e){e.preventDefault();},false);
-	var mxMusic=document.querySelector('#mx-music');
-	var mxAudio=document.querySelector('#mx-audio');
-	var mxMusicContent=mxMusic.querySelector('.mx-music-content');
-	var mxMusicList=mxMusic.querySelector('.mx-music-list');
-	var mxMusicMore=mxMusic.querySelector('.mx-music-more');
-	var mxMusicListDiv=mxMusicList.getElementsByTagName('div');
-	var mxMusicFooter=mxMusic.querySelector('.mx-music-footer');
-	var mxMusicFooterLi=mxMusicFooter.getElementsByTagName('li');
-	var mxLyric=mxMusic.querySelector('.mx-lyric');//歌词界面
-	var mxLyricTitle=mxLyric.querySelector('.mx-lyric-title');
-	var mxLyricTitleH4=mxLyricTitle.getElementsByTagName('h4')[0];
-	var mxLyricTitleEm=mxLyricTitle.getElementsByTagName('em')[0];
-	var mxLyricList=mxLyric.querySelector('.mx-lyric-list');//歌词列表
-	var mxLyricListDiv=mxLyricList.getElementsByTagName('div')[0];
-	var mxLyricListUl=mxLyricList.getElementsByTagName('ul')[0];
-	var mxLyricListUlLi=mxLyricListUl.getElementsByTagName('li');
-	var mxLyricKeyTop=mxLyric.querySelector('.mx-lyric-key-top');//进度条相关
-	var mxLyricKeyTopLi=mxLyricKeyTop.getElementsByTagName('li');
-	var mxLyricKeyTopLiDiv=mxLyricKeyTopLi[1].getElementsByTagName('div')[0];
-	var mxLyricKeyTopLiSpan=mxLyricKeyTopLi[1].getElementsByTagName('span')[0];
-	var mxLyricKeyBottom=mxLyric.querySelector('.mx-lyric-key-bottom');//按钮相关
-	var mxLyricKeyBottomLi=mxLyricKeyBottom.getElementsByTagName('li');
-	var musicArr=[];
-	var timer=0;//定时器
-	var tempMusicId='';//当前播放的索引
-	var scale=0;
-	var xhr=null;//中断ajax请求有关
-	var abort=false;//中断ajax请求有关
-	//var a = navigator.userAgent.toLowerCase().indexOf('mobile');//判断是否是移动端
-	//加载图片后显示
-	function loadingFn(){
-		var imgArr=['bg.jpg','detailsBg.jpg','music-icon.png','initbg.png'];
-		var iNow=0;
-		for(var i=0;i<imgArr.length;i++){
-			var oImg=new Image();
-			oImg.onload=function(){
-				iNow++;
-				if(iNow===imgArr.length){
-					mxMusic.removeChild(document.querySelector('#mx-loading'));
-				}
-			};
-			oImg.onerror=function(){
-				mxMusic.removeChild(document.querySelector('#mx-loading'));
-			};
-			oImg.src='img/'+imgArr[i];
-		}
-	}
-	loadingFn();
-	//初始化数据
-	dataListFn.page=1;
-	function dataListFn(page){
-		if(dataListFn.page===4){
-			mxMusicMore.innerHTML='没有更多了';
-			return;
-		}
-		ajax({
-			url:page+'.txt',
-			success:function(data){
-				var data=JSON.parse(data);
-				if(data.length){
-					for(var i=0;i<data.length;i++){
-						var oLi=document.createElement('li');
-						oLi.setAttribute('musicId',data[i].id);
-						oLi.innerHTML='<h2>'+data[i].musicName+'</h2><p>'+data[i].name+'</p><div></div>';
-						mxMusicList.appendChild(oLi);
-						musicArr.push(data[i]);
-					}
-					dataListFn.page++;
-					mxMusicContent.btn=true;
-				}
-			}
-		});
-	}
-	dataListFn(dataListFn.page);
-	//下滑加载更多音乐
-
-	mxMusicContent.btn=true;
-	mxMusicContent.addEventListener('scroll',scrollMusicFn,false);
-	function scrollMusicFn(){
-		if(mxMusicContent.btn&&mxMusicMore.getBoundingClientRect().top<document.documentElement.clientHeight-60){
-			mxMusicContent.btn=false;
-			dataListFn(dataListFn.page);
-		}
-	}
-	
-	//设置能显示多少条歌词
-	var lyricNum=0;
-	function setLyricHeight(){
-		var H=mxLyricList.offsetHeight;
-		var h=Math.floor(H/34)*34;
-		mxLyricListDiv.style.height=mxLyricListDiv.style.lineHeight=h+'px';
-		mxLyricListDiv.style.top=Math.round((H-h)/2)+'px';
-		lyricNum=Math.floor(Math.floor(H/34)/2);
-	}
-	setLyricHeight();
-	window.addEventListener('resize',setLyricHeight,false);
-	
-	//点击音乐
-	var classNow=0;
-	function clickMusic(){
-		var disX=0;
-		var disY=0;
-		var bBtn=false;
-		mxMusicList.addEventListener('touchstart',startFn,false);
-		function startFn(e){
-			e.stopPropagation();
-			var ev=e.changedTouches[0];
-			disX=ev.pageX;
-			disY=ev.pageY;
-			bBtn=true;
-			mxMusicList.addEventListener('touchmove',moveFn,false);
-			mxMusicList.addEventListener('touchend',endFn,false);
-		}
-		function moveFn(e){
-			bBtn=e.changedTouches[0].pageY==disY?true:false;
-		}
-		function endFn(e){
-			mxMusicList.removeEventListener('touchmove',moveFn,false);
-			mxMusicList.removeEventListener('touchend',endFn,false);
-			if(!bBtn)return;
-			var liNode=e.target.tagName.toLowerCase()!=='li'?e.target.parentNode:e.target;
-			var musicId=liNode.getAttribute('musicId');
-			if(tempMusicId==musicId)return;
-			tempMusicId=musicId;
-			resetData(musicId-1);	
-			showMusic(musicId);
-		}
-	}
-	function resetData(now){
-		clearInterval(timer);
-		mxMusicListDiv[classNow].className='';
-		mxMusicListDiv[classNow].innerHTML='';
-		mxMusicListDiv[now].innerHTML='加载中...';
-		mxMusicListDiv[now].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='running';
-		mxLyricTitleH4.innerHTML=mxMusicFooterLi[1].innerHTML=musicArr[now].musicName;//歌曲标题
-		mxMusicFooterLi[2].innerHTML=musicArr[now].name;//歌手名字
-		mxMusicFooterLi[3].style.backgroundPositionX='-.8rem';//播放按钮1
-		mxLyricKeyBottomLi[2].style.backgroundPositionX='-1.1rem';//播放按钮2
-		mxLyricKeyTopLi[0].innerHTML='00:00';//当前播放位置
-		mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='none';//重置位置
-		mxLyricListUl.innerHTML='正在努力加载歌词...';//清空歌词
-		mxLyricKeyTopLiDiv.style.width=0;//进度条归0
-		mxAudio.pause();//暂停音频
-		classNow=now;
-	}
-	clickMusic();
-	function showMusic(musicId){
-		abort&&xhr.abort();
-		abort=!abort;
-		xhr=ajax({
-			url:musicId+'.php',
-			success:function(data){
-				var data=JSON.parse(data);
-				mxAudio.src='music/'+data.audio;//设置歌曲路劲			
-				mxAudio.addEventListener('canplaythrough',autoPlayMusic,false);
-				function autoPlayMusic(){
-					var iNow=0;
-					var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
-					var lyricDate=[];//存每句歌词时间
-					var str='';
-					for(var i=0;i<lyricArr.length;i++){
-						var tem=lyricArr[i].substring(1,9).split(':');
-						str+='<li>'+lyricArr[i].substring(10).trim()+'</li>';
-						lyricDate.push((parseFloat(tem[0]*60)+parseFloat(tem[1])).toFixed(2));
-					}
-					mxLyricListUl.innerHTML=str;
-					mxLyricListUl.style.transition=mxLyricListUl.style.WebkitTransition='none';
-					mxLyricListUl.style.opacity=0;
-					setTimeout(function(){
-						mxLyricListUl.style.transition=mxLyricListUl.style.WebkitTransition='transform 300ms,-webkit-transform 300ms,opacity 1000ms';
-						mxLyricListUl.style.opacity=1;
-					},100);
-					mxMusicListDiv[classNow].innerHTML='';
-					mxMusicListDiv[classNow].className='bg';
-					mxAudio.play();//播放歌曲
-					mxMusicFooterLi[0].style.backgroundImage='url(img/'+data.img+')';//歌手头像
-					mxLyricKeyTopLi[2].innerHTML=showTime(mxAudio.duration);//歌曲时长
-					mxMusicFooterLi[3].style.backgroundPositionX='-1.61rem';//播放按钮1
-					mxLyricKeyBottomLi[2].style.backgroundPositionX='-2.22rem';//播放按钮2
-					scale=200/mxAudio.duration;
-					clearInterval(timer);
-					timer=setInterval(function(){
-						var nowDate=mxAudio.currentTime;
-						mxLyricKeyTopLi[0].innerHTML=showTime(nowDate);
-						if(jinduStrat.btn){
-							mxLyricKeyTopLiDiv.style.width=scale*nowDate+'px';
-						}
-						for(var i=0;i<lyricDate.length;i++){
-							if(lyricDate[i]<nowDate&&lyricDate[i+1]>nowDate||i===lyricDate.length-1){
-								mxLyricListUlLi[iNow].className='';
-								mxLyricListUlLi[i].className='active';
-								iNow=i;
-								if(i>lyricNum){
-									mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='translate3d(0,'+(-34*(i-lyricNum))+'px,0)';
-								}else{
-									mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='translate3d(0,0,0)';
-								}
-								break;
-							}
-						}
-					},1000);
-					mxAudio.removeEventListener('canplaythrough',autoPlayMusic,false);
-					abort=false;
-				}
-			}
-		});
-	}
-	function showTime(a){//秒数转换成小时分钟
-        a=parseInt(a);
-        var b=Math.floor(a%3600/60);
-        var c=Math.floor(a%60);
-        return toZero(b)+':'+toZero(c);
-    }
-	function toZero(a){
-		return a<10?'0'+a:''+a;
-    }
-	//底部换出歌词界面
-	mxMusicFooter.addEventListener('touchend',function(){
-		if(!mxAudio.src)return;
-		mxLyric.style.transform=mxLyric.style.WebkitTransform='translate3d(0,0,0)';
-	},false);
-	//隐藏歌词界面
-	mxLyricTitleEm.addEventListener('touchend',function(){
-		mxLyric.style.transform=mxLyric.style.WebkitTransform='translate3d(0,100%,0)';
-	},false);
-	//拖拽进度条
-	jinduStrat.X=0;
-	jinduStrat.W=0;
-	jinduStrat.w=0;
-	jinduStrat.btn=true;
-	jinduStrat.width=mxLyricKeyTopLi[1].offsetWidth;
-	mxLyricKeyTopLiSpan.addEventListener('touchstart',jinduStrat,false);
-	function jinduStrat(e){
-		e.stopPropagation();
-		jinduStrat.X=e.changedTouches[0].pageX;
-		jinduStrat.W=mxLyricKeyTopLiDiv.offsetWidth;
-		jinduStrat.btn=false;
-		document.addEventListener('touchmove',jinduMove,false);
-		document.addEventListener('touchend',jinduEnd,false);
-		e.preventDefault();
-		e.stopPropagation();
-		mxLyricKeyTopLi[1].removeEventListener('touchend',clickJinduFn,false);
-	}
-	function jinduMove(e){
-		jinduStrat.w=e.changedTouches[0].pageX-jinduStrat.X+jinduStrat.W;
-		if(jinduStrat.w>jinduStrat.width){
-			jinduStrat.w=jinduStrat.width;
-		}else if(jinduStrat.w<0){
-			jinduStrat.w=0;
-		}
-		mxLyricKeyTopLiDiv.style.width=jinduStrat.w+'px';
-	}
-	function jinduEnd(e){
-		document.removeEventListener('touchmove',jinduMove,false);
-		document.removeEventListener('touchend',jinduEnd,false);
-		mxAudio.currentTime=jinduStrat.w/scale;
-		jinduStrat.btn=true;
-		mxLyricKeyTopLi[1].addEventListener('touchend',clickJinduFn,false);
-	}
-	//点击进度条
-	mxLyricKeyTopLi[1].addEventListener('touchend',clickJinduFn,false);
-	function clickJinduFn(e){
-		var w=e.changedTouches[0].pageX-this.getBoundingClientRect().left;
-		mxLyricKeyTopLiDiv.style.width=w+'px';
-		mxAudio.currentTime=w/scale;
-	}
-	//歌曲暂停/播放
-	mxMusicFooterLi[3].addEventListener('touchend',musicPause,false);
-	mxLyricKeyBottomLi[2].addEventListener('touchend',musicPause,false);
-	function musicPause(e){
-		e.stopPropagation();
-		if(!mxAudio.src)return;
-		if(mxAudio.paused){
-			mxAudio.play();
-			mxMusicFooterLi[3].style.backgroundPositionX='-1.61rem';//播放按钮1
-			mxLyricKeyBottomLi[2].style.backgroundPositionX='-2.22rem';//播放按钮2
-			mxMusicListDiv[classNow].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='running';
-		}else{
-			mxAudio.pause();
-			mxMusicFooterLi[3].style.backgroundPositionX='-.8rem';//播放按钮1
-			mxLyricKeyBottomLi[2].style.backgroundPositionX='-1.1rem';//播放按钮2
-			mxMusicListDiv[classNow].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='paused';
-		}
-	}
-	//上一首
-	mxLyricKeyBottomLi[1].addEventListener('touchend',function(){
-		nextMusicFn(true);
-	},false);
-	//下一首
-	mxLyricKeyBottomLi[3].addEventListener('touchend',function(){
-		nextMusicFn(false);
-	},false);
-	function nextMusicFn(btn){
-		if(mxLyricKeyBottomLi[0].btn==1||mxLyricKeyBottomLi[0].btn==2){//循环播放、单曲循环
-			if(btn){
-				tempMusicId==1?tempMusicId=mxMusicListDiv.length:tempMusicId--;
-			}else{
-				tempMusicId==mxMusicListDiv.length?tempMusicId=1:tempMusicId++;
-			}
-		}else if(mxLyricKeyBottomLi[0].btn==0){//随机播放
-			tempMusicId=parseInt(Math.random()*musicArr.length)+1;
-		}
-		resetData(tempMusicId-1);
-		showMusic(tempMusicId);
-	}
-	//随机播放、单曲循环、列表循环
-	mxLyricKeyBottomLi[0].btn=1;
-	mxLyricKeyBottomLi[0].addEventListener('touchend',function(){
-		if(this.btn==0){
-			this.style.backgroundPositionX='-7.17rem';
-			this.btn=1;
-			mxAudio.removeAttribute('loop');
-		}else if(this.btn==1){
-			this.style.backgroundPositionX='-5.33rem';
-			this.btn=2;
-			mxAudio.setAttribute('loop','loop');
-		}else if(this.btn==2){
-			this.style.backgroundPositionX='-6.24rem';
-			this.btn=0;
-			mxAudio.removeAttribute('loop');
-		}
-	},false);
-	//歌曲结束触发的事件
-	mxAudio.addEventListener('ended',function(){
-		nextMusicFn(false);
-	},false);
-})();
-	
-},false);
+/*
+	音频部分属性方法事件
+	audio.src				设置或返回音频/视频路劲
+	audio.paused			设置或返回音频/视频是否暂停，暂停为true
+	audio.duration			返回音频/视频总时长（以秒计）
+	audio.currentTime		设置或返回音频/视频播放了多少（以秒计）
+	audio.loop				设置值为"loop"可以循环播放音频/视频
+	audio.play()			开始播放音频/视频
+	audio.pause()			暂停当前播放的音频/视频
+	audio.load()			重新加载音频/视频元素
+	canPlayType()			检测浏览器是否能播放指定的音频/视频类型
+	canplaythrough			当浏览器可以开始播放音频/视频时触发。
+	ended					音频/视频结束后触发
+*/
 </script>
 </head>
 <body>
 <div id="mx-music">
-	<audio id="mx-audio" autoplay="autoplay"></audio>
+	<audio id="mx-audio"></audio>
 	<!-- loading -->
 	<div id="mx-loading">
     	<ul>
@@ -556,5 +188,405 @@ document.addEventListener('DOMContentLoaded',function(){
 		<li></li>
     </ul>
 </div>
+
+<script>
+function ajax(obj){
+	obj.method=obj.method||'get';
+	obj.async=obj.async||true;
+	obj.dataType=obj.dataType||'text';
+	var xhr=new XMLHttpRequest();
+	var data=(function(datas){
+		var arr=[];
+		for(var i in datas){
+			arr.push(encodeURIComponent(i)+'='+encodeURIComponent(datas[i]));
+		}
+		return arr.join('&');
+	})(obj.data);
+	if(obj.method === 'get'){
+		xhr.open('get',obj.url+'?'+data+'&'+Math.random(),obj.async);
+		xhr.send(null);
+	}else{
+		xhr.open('post',obj.url,obj.async);
+		xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+		xhr.send(data);
+	}
+	if(obj.async===true){
+		xhr.onreadystatechange=function(){//当xhr.readyState值改变时触发的事件
+			xhr.readyState===4&&callback();
+		};
+	}else{	
+		callback();
+	}
+	function callback(){
+		if(xhr.status===200){
+			var data;
+			if(obj.dataType==='json'){
+				data=JSON.parse(xhr.responseText);
+			}else if(obj.dataType==='text'){
+				data=xhr.responseText;
+			}
+			obj.success(data);
+		}else{
+			console.log('错误代号：' + xhr.status + '，错误信息：' + xhr.statusText);
+		}
+	}
+	return xhr;
+}
+function on(obj,type,fn){
+	var type=type.split('.'),
+		name=type[1]?type[1]:'mxundefined',
+		eventType='mx'+type[0];
+	obj.mxremove=obj.mxremove||[];//给off()一个参时用
+	obj.mxremove.push([type[0],fn]);//给off()一个参时用
+	obj[eventType]=obj[eventType]||{};
+	obj[eventType][name]=obj[eventType][name]||[];
+	obj[eventType][name].push(fn);
+	obj.addEventListener(type[0],fn,false);
+}
+function off(obj,type){
+	if(type){
+		var type=type.split('.'),
+			name=type[1]?type[1]:'mxundefined',
+			arr=obj['mx'+type[0]][name];
+		for(var i=0;i<arr.length;i++){
+			obj.removeEventListener(type[0],arr[i],false);
+		}
+	}else{
+		for(var i=0;i<obj.mxremove.length;i++){
+			obj.removeEventListener(obj.mxremove[i][0],obj.mxremove[i][1],false);
+		}
+	}
+}
+function setStyle3(obj,name,value){
+	var _n=name.charAt(0).toUpperCase()+name.substring(1);
+	obj.style[name]=obj.style['Webkit'+_n]=obj.style['Moz'+_n]=obj.style['ms'+_n]=obj.style['O'+_n]=value;
+}
+on(document,'touchstart',function(e){e.preventDefault();});
+(function (window){
+	var doc=window.document;
+	var mxMusic=document.querySelector('#mx-music');
+	var mxAudio=document.querySelector('#mx-audio');
+	var mxMusicContent=mxMusic.querySelector('.mx-music-content');
+	var mxMusicList=mxMusic.querySelector('.mx-music-list');
+	var mxMusicMore=mxMusic.querySelector('.mx-music-more');
+	var mxMusicListDiv=mxMusicList.getElementsByTagName('div');
+	var mxMusicFooter=mxMusic.querySelector('.mx-music-footer');
+	var mxMusicFooterLi=mxMusicFooter.getElementsByTagName('li');
+	var mxLyric=mxMusic.querySelector('.mx-lyric');//歌词界面
+	var mxLyricTitle=mxLyric.querySelector('.mx-lyric-title');
+	var mxLyricTitleH4=mxLyricTitle.getElementsByTagName('h4')[0];
+	var mxLyricTitleEm=mxLyricTitle.getElementsByTagName('em')[0];
+	var mxLyricList=mxLyric.querySelector('.mx-lyric-list');//歌词列表
+	var mxLyricListDiv=mxLyricList.getElementsByTagName('div')[0];
+	var mxLyricListUl=mxLyricList.getElementsByTagName('ul')[0];
+	var mxLyricListUlLi=mxLyricListUl.getElementsByTagName('li');
+	var mxLyricKeyTop=mxLyric.querySelector('.mx-lyric-key-top');//进度条相关
+	var mxLyricKeyTopLi=mxLyricKeyTop.getElementsByTagName('li');
+	var mxLyricKeyTopLiDiv=mxLyricKeyTopLi[1].getElementsByTagName('div')[0];
+	var mxLyricKeyTopLiSpan=mxLyricKeyTopLi[1].getElementsByTagName('span')[0];
+	var mxLyricKeyBottom=mxLyric.querySelector('.mx-lyric-key-bottom');//按钮相关
+	var mxLyricKeyBottomLi=mxLyricKeyBottom.getElementsByTagName('li');
+	var musicArr=[];
+	var timer=0;//定时器
+	var tempMusicId='';//当前播放的索引
+	var scale=0;
+	var xhr=null;//中断ajax请求有关
+	var abort=false;//中断ajax请求有关
+	//var a = navigator.userAgent.toLowerCase().indexOf('mobile');//判断是否是移动端
+	//加载图片后显示
+	function loadingFn(){
+		var imgArr=['bg.jpg','detailsBg.jpg','music-icon.png','initbg.png'];
+		var iNow=0;
+		for(var i=0;i<imgArr.length;i++){
+			var oImg=new Image();
+			oImg.onload=function(){
+				iNow++;
+				if(iNow===imgArr.length){
+					mxMusic.removeChild(document.querySelector('#mx-loading'));
+				}
+			};
+			oImg.onerror=function(){
+				mxMusic.removeChild(document.querySelector('#mx-loading'));
+			};
+			oImg.src='img/'+imgArr[i];
+		}
+	}
+	loadingFn();
+	//初始化数据
+	dataListFn.page=1;
+	function dataListFn(page){
+		ajax({
+			url:'initList.php',
+			data:{page:page},
+			success:function(data){
+				var data=JSON.parse(data);
+				if(data.length){
+					for(var i=0;i<data.length;i++){
+						var oLi=document.createElement('li');
+						oLi.setAttribute('musicId',data[i].id);
+						oLi.innerHTML='<h2>'+data[i].musicName+'</h2><p>'+data[i].name+'</p><div></div>';
+						mxMusicList.appendChild(oLi);
+						musicArr.push(data[i]);
+					}
+					dataListFn.page++;
+					mxMusicContent.btn=true;
+				}else{
+					mxMusicMore.innerHTML='没有更多了';
+				}
+			}
+		});
+	}
+	dataListFn(dataListFn.page);
+	//下滑加载更多音乐
+	mxMusicContent.btn=true;
+	on(mxMusicContent,'scroll',function(){
+		if(mxMusicContent.btn&&mxMusicMore.getBoundingClientRect().top<document.documentElement.clientHeight-60){
+			mxMusicContent.btn=false;
+			dataListFn(dataListFn.page);
+		}
+	});
+	
+	//设置能显示多少条歌词
+	var lyricNum=0;
+	function setLyricHeight(){
+		var H=mxLyricList.offsetHeight;
+		var h=Math.floor(H/34)*34;
+		mxLyricListDiv.style.height=mxLyricListDiv.style.lineHeight=h+'px';
+		mxLyricListDiv.style.top=Math.round((H-h)/2)+'px';
+		lyricNum=Math.floor(Math.floor(H/34)/2);
+	}
+	setLyricHeight();
+	on(window,'resize',setLyricHeight);
+	
+	//点击音乐
+	var classNow=0;
+	function clickMusic(){
+		var disX=0;
+		var disY=0;
+		var bBtn=false;
+		on(mxMusicList,'touchstart',function (e){
+			var ev=e.changedTouches[0];
+			disX=ev.pageX;
+			disY=ev.pageY;
+			bBtn=true;
+			on(this,'touchmove',function (e){
+				bBtn=e.changedTouches[0].pageY===disY?true:false;
+			});
+			on(this,'touchend',function (e){
+				if(bBtn){
+					var liNode=e.target.tagName.toLowerCase()!=='li'?e.target.parentNode:e.target;
+					var musicId=liNode.getAttribute('musicId');
+					if(tempMusicId==musicId)return;
+					tempMusicId=musicId;
+					resetData(musicId-1);	
+					showMusic(musicId);
+				}
+				off(this,'touchmove');
+				off(this,'touchend');
+			});
+			e.stopPropagation();
+		});
+	}
+	clickMusic();
+	function resetData(now){
+		clearInterval(timer);
+		mxMusicListDiv[classNow].className='';
+		mxMusicListDiv[classNow].innerHTML='';
+		mxMusicListDiv[now].innerHTML='加载中...';
+		mxMusicListDiv[now].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='running';
+		mxLyricTitleH4.innerHTML=mxMusicFooterLi[1].innerHTML=musicArr[now].musicName;//歌曲标题
+		mxMusicFooterLi[2].innerHTML=musicArr[now].name;//歌手名字
+		mxMusicFooterLi[3].style.backgroundPositionX='-.8rem';//播放按钮1
+		mxLyricKeyBottomLi[2].style.backgroundPositionX='-1.1rem';//播放按钮2
+		mxLyricKeyTopLi[0].innerHTML='00:00';//当前播放位置
+		mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='none';//重置位置
+		mxLyricListUl.innerHTML='音乐正在玩命加载中...';//清空歌词
+		mxLyricKeyTopLiDiv.style.width=0;//进度条归0
+		mxAudio.src='';
+		classNow=now;
+	}
+	
+	function showMusic(musicId){
+		abort&&xhr.abort();
+		abort=!abort;
+		xhr=ajax({
+			url:'musicShow.php',
+			dataType:'json',
+			data:{id:musicId},
+			success:function(data){
+				mxAudio.src='music/'+data.audio;
+				mxAudio.play();//播放歌曲
+				on(mxAudio,'canplaythrough',function (){
+					var iNow=0;
+					var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
+					var lyricDate=[];//存每句歌词时间
+					var str='';
+					for(var i=0;i<lyricArr.length;i++){
+						var tem=lyricArr[i].substring(1,9).split(':');
+						str+='<li>'+lyricArr[i].substring(10).trim()+'</li>';
+						lyricDate.push((parseFloat(tem[0]*60)+parseFloat(tem[1])).toFixed(2));
+					}
+					mxLyricListUl.innerHTML=str;
+					mxLyricListUl.style.transition=mxLyricListUl.style.WebkitTransition='none';
+					mxLyricListUl.style.opacity=0;
+					setTimeout(function(){
+						mxLyricListUl.style.transition=mxLyricListUl.style.WebkitTransition='transform 300ms,-webkit-transform 300ms,opacity 1000ms';
+						mxLyricListUl.style.opacity=1;
+					},100);
+					mxMusicListDiv[classNow].innerHTML='';
+					mxMusicListDiv[classNow].className='bg';
+					mxMusicFooterLi[0].style.backgroundImage='url(img/'+data.img+')';//歌手头像
+					mxLyricKeyTopLi[2].innerHTML=showTime(mxAudio.duration);//歌曲时长
+					mxMusicFooterLi[3].style.backgroundPositionX='-1.61rem';//播放按钮1
+					mxLyricKeyBottomLi[2].style.backgroundPositionX='-2.22rem';//播放按钮2
+					scale=200/mxAudio.duration;
+					clearInterval(timer);
+					timer=setInterval(function(){
+						var nowDate=mxAudio.currentTime;
+						mxLyricKeyTopLi[0].innerHTML=showTime(nowDate);
+						if(jd.btn){
+							mxLyricKeyTopLiDiv.style.width=scale*nowDate+'px';
+						}
+						for(var i=0;i<lyricDate.length;i++){
+							if(lyricDate[i]<nowDate&&lyricDate[i+1]>nowDate||i===lyricDate.length-1){
+								mxLyricListUlLi[iNow].className='';
+								mxLyricListUlLi[i].className='active';
+								iNow=i;
+								if(i>lyricNum){
+									mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='translate3d(0,'+(-34*(i-lyricNum))+'px,0)';
+								}else{
+									mxLyricListUl.style.transform=mxLyricListUl.style.WebkitTransform='translate3d(0,0,0)';
+								}
+								break;
+							}
+						}
+					},1000);
+					off(this,'canplaythrough');
+					abort=false;
+				});
+				
+			}
+		});
+	}
+	function showTime(a){//秒数转换成小时分钟
+        a=parseInt(a);
+        var b=Math.floor(a%3600/60);
+        var c=Math.floor(a%60);
+        return toZero(b)+':'+toZero(c);
+    }
+	function toZero(a){
+		return a<10?'0'+a:''+a;
+    }
+	//底部换出歌词界面
+	on(mxMusicFooter,'touchend',function(){
+		if(!mxAudio.src)return;
+		setStyle3(mxLyric,'transform','translate3d(0,0,0)');
+	});
+	//隐藏歌词界面
+	on(mxLyricTitleEm,'touchend',function(){
+		setStyle3(mxLyric,'transform','translate3d(0,100%,0)');
+	});
+	//拖拽进度条
+	function jd(){
+		var disX=0;
+		var disW=0;
+		var moveX=0;
+		var moveW=mxLyricKeyTopLi[1].offsetWidth;
+		jd.btn=true;
+		on(mxLyricKeyTopLiSpan,'touchstart',function (e){
+			disX=e.changedTouches[0].pageX;
+			disW=mxLyricKeyTopLiDiv.offsetWidth;
+			jd.btn=false;
+			on(doc,'touchmove',function (e){
+				moveX=e.changedTouches[0].pageX-disX+disW;
+				if(moveX>moveW){
+					moveX=moveW;
+				}else if(moveX<0){
+					moveX=0;
+				}
+				mxLyricKeyTopLiDiv.style.width=moveX+'px';
+			});
+			on(doc,'touchend',function (e){
+				off(this,'touchmove');
+				off(this,'touchend');
+				mxAudio.currentTime=moveX/scale;
+				jd.btn=true;
+				on(mxLyricKeyTopLi[1],'touchend',clickJinduFn);
+			});
+			e.preventDefault();
+			e.stopPropagation();
+			off(mxLyricKeyTopLi[1],'touchend');
+		});
+	}
+	jd();
+	//点击进度条
+	on(mxLyricKeyTopLi[1],'touchend',clickJinduFn);
+	function clickJinduFn(e){
+		var w=e.changedTouches[0].pageX-this.getBoundingClientRect().left;
+		mxLyricKeyTopLiDiv.style.width=w+'px';
+		mxAudio.currentTime=w/scale;
+	}
+	//歌曲暂停/播放
+	on(mxMusicFooterLi[3],'touchend',musicPause);
+	on(mxLyricKeyBottomLi[2],'touchend',musicPause);
+	function musicPause(e){
+		e.stopPropagation();
+		if(!mxAudio.src)return;
+		if(mxAudio.paused){
+			mxAudio.play();
+			mxMusicFooterLi[3].style.backgroundPositionX='-1.61rem';//播放按钮1
+			mxLyricKeyBottomLi[2].style.backgroundPositionX='-2.22rem';//播放按钮2
+			mxMusicListDiv[classNow].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='running';
+		}else{
+			mxAudio.pause();
+			mxMusicFooterLi[3].style.backgroundPositionX='-.8rem';//播放按钮1
+			mxLyricKeyBottomLi[2].style.backgroundPositionX='-1.1rem';//播放按钮2
+			mxMusicListDiv[classNow].style.animationPlayState=mxMusicListDiv[classNow].style.WebkitAnimationPlayState='paused';
+		}
+	}
+	//上一首
+	on(mxLyricKeyBottomLi[1],'touchend',function(){
+		nextMusicFn(true);
+	});
+	//下一首
+	on(mxLyricKeyBottomLi[3],'touchend',function(){
+		nextMusicFn(false);
+	});
+	function nextMusicFn(btn){
+		if(mxLyricKeyBottomLi[0].btn==1||mxLyricKeyBottomLi[0].btn==2){//循环播放、单曲循环
+			if(btn){
+				tempMusicId==1?tempMusicId=mxMusicListDiv.length:tempMusicId--;
+			}else{
+				tempMusicId==mxMusicListDiv.length?tempMusicId=1:tempMusicId++;
+			}
+		}else if(mxLyricKeyBottomLi[0].btn==0){//随机播放
+			tempMusicId=parseInt(Math.random()*musicArr.length)+1;
+		}
+		resetData(tempMusicId-1);
+		showMusic(tempMusicId);
+	}
+	//随机播放、单曲循环、列表循环
+	mxLyricKeyBottomLi[0].btn=1;
+	on(mxLyricKeyBottomLi[0],'touchend',function(){
+		if(this.btn==0){
+			this.style.backgroundPositionX='-7.17rem';
+			this.btn=1;
+			mxAudio.removeAttribute('loop');
+		}else if(this.btn==1){
+			this.style.backgroundPositionX='-5.33rem';
+			this.btn=2;
+			mxAudio.setAttribute('loop','loop');
+		}else if(this.btn==2){
+			this.style.backgroundPositionX='-6.24rem';
+			this.btn=0;
+			mxAudio.removeAttribute('loop');
+		}
+	});
+	//歌曲结束触发的事件
+	on(mxAudio,'ended',function(){
+		nextMusicFn(false);
+	});
+})(window);
+</script>
 </body>
 </html>
