@@ -418,8 +418,8 @@ on(document,'touchstart',function(e){e.preventDefault();});
 			success:function(data){
 				mxAudio.src='music/'+data.audio;
 				mxAudio.play();//播放歌曲
-				on(mxAudio,'canplaythrough',function (){
-					off(mxAudio,'canplaythrough');
+				on(mxAudio,'canplay',function (){
+					off(mxAudio,'canplay');
 					var iNow=0;
 					var lyricArr=data.lyric.match(/\[[^[]+/g);//带时间戳的歌词
 					var lyricDate=[];//存每句歌词时间
