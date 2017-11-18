@@ -81,10 +81,14 @@ table{border-collapse:collapse;}
 #zuixin > .nav{width:100%;height:.9rem;background:#f1f1f1;text-align:center;line-height:.9rem;}
 #zuixin > .nav a{width:25%;height:100%;float:left;font-size:.24rem;color:#717171;}
 /*轮播图公共部分*/
-.item-slide{width:99999px;height:1.96rem;}
-.item-slide li{width:6.4rem;height:100%;float:left;}
-.item-slide li a{width:100%;height:100%;display:block;}
-.item-slide li img{max-width:100%;max-height:100%;}
+.item-slide{width:100%;height:1.96rem;overflow:hidden;position:relative;}
+.item-slide-ul{width:99999px;height:100%;}
+.item-slide-ul li{width:6.4rem;height:100%;float:left;}
+.item-slide-ul li a{width:100%;height:100%;display:block;}
+.item-slide-ul li img{max-width:100%;max-height:100%;}
+.item-slide-ol{position:absolute;height:.14rem;bottom:.1rem;right:.1rem;}
+.item-slide-ol li{width:.14rem;height:100%;background:#f2f2f2;float:left;margin-left:.1rem;border-radius:.07rem;}
+.item-slide-ol .active{background:#f60;}
 /*新闻列表公共部分*/
 .item-list{width:100%;overflow:hidden;}
 .item-list a{width:100%;height:1.68rem;display:block;border-bottom:1px solid #e9e9e9;padding:.14rem .2rem;overflow:hidden;}
@@ -138,11 +142,18 @@ table{border-collapse:collapse;}
         </nav>
         <div class="slide">
             <div class="item" id="zuixin" data-hash="zuixin">
-            	<ul class="item-slide">
-                	<li><a href="#1"><img src="img/slide1.jpg"></a></li>
-                    <li><a href="#2"><img src="img/slide2.jpg"></a></li>
-                    <li><a href="#3"><img src="img/slide3.jpg"></a></li>
-                </ul>
+            	<div class="item-slide">
+                    <ul class="item-slide-ul">
+                        <li><a href="#1"><img src="img/slide1.jpg"></a></li>
+                        <li><a href="#2"><img src="img/slide2.jpg"></a></li>
+                        <li><a href="#3"><img src="img/slide3.jpg"></a></li>
+                    </ul>
+                    <ol class="item-slide-ol">
+                    	<li class="active"></li>
+                        <li></li>
+                        <li></li>
+                    </ol>
+                </div>
                 <nav class="nav">
                 	<a href="javascript:;">战绩</a>
                     <a href="javascript:;">视频</a>
@@ -200,26 +211,6 @@ table{border-collapse:collapse;}
                             </div>
                         </div>
                     </a>
-                    <a href="#6">
-                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
-                        <div class="item-list-info">
-                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
-                            <div>
-                            	<span>4小时前</span>
-                                <span>289评</span>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="#7">
-                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
-                        <div class="item-list-info">
-                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
-                            <div>
-                            	<span>4小时前</span>
-                                <span>289评</span>
-                            </div>
-                        </div>
-                    </a>
                 </div>
             </div>
             <div class="item" id="xinwen" data-hash="xinwen"></div>
@@ -235,96 +226,123 @@ table{border-collapse:collapse;}
 
 
 <script>
+var oItemSlide=document.getElementsByClassName('item-slide')[0];
+slide('.item-slide');
 function slide(id){
-	var $box=$(id);
-	var $ul=$box.find('.slides_ul');
-	var $ol=$box.find('.slides_ol');
-	var $li=$ul.find('li');
-	var $olLi=$ol.find('li');
-	var startX=0;
-	var startY=0;
-	var disX=0;
-	var disY=0;
-	var scrollY;	
-	var index=0;
-	var timer=0;
-	var timer2=0;
-	var slideW=0;
-	var liL=$li.length;
-	var newLength=liL+2;
-	$ul.prepend($li.eq(liL-1).clone());
-	$ul.append($li.eq(0).clone());
-	var translate=function(target,iSpeed){
-		$ul.get(0).style.webkitTransitionDuration=$ul.get(0).style.transitionDuration=iSpeed+'ms';
-		$ul.get(0).style.webkitTransform='translate('+target+'px,0)'+'translateZ(0.01px)';
+	var oBox=document.querySelector(id);
+	var oUl=oBox.querySelector('.item-slide-ul');
+	var oOl=oBox.querySelector('.item-slide-ol');
+	var oUlLi=oUl.querySelectorAll('li');
+	var oOlLi=oOl.querySelectorAll('li');
+	var iLen=oUlLi.length;
+	var iSlideW=0;
+	var iNowX=0;//当前的translateX
+	var iNowY=0;//当前的translateY
+	var iStartX=0;//手指按下的pageX
+	var iStartY=0;//手指按下的pageY
+	var iMoveX=0;//手指移动的横距离
+	var iMoveY=0;//手指移动的纵距离
+	var iNow1=0;
+	var iNow2=0;
+	var iNow3=0;
+	var date=0;
+	var timer1=0;
+	var bBtn=false;
+	var offY;
+	var translate=function(i){
+		oUl.style.transform=oUl.style.WebkitTransform='translate3d('+i+'px,0,0)';
 	};
-	var	resize='onorientationchange' in window ? 'orientationchange' : 'resize';
-	var orientationChange=function(){
-		slideW=$li.width();
-		$ul.css('width',newLength*slideW);
-		translate(-(index+1)*slideW,0);
+	var transition=function(v){
+		oUl.style.transition=oUl.style.WebkitTransition=v;
 	}
-	orientationChange();
-	$(window).on(resize,orientationChange);
-	
-	$ul.on('touchstart',fnStart);
-	$ul.on('touchmove',fnMove);
-	$ul.on('touchend',fnEnd);
+	var	resize='onorientationchange' in window?'orientationchange':'resize';
+	var resizeFn=function(){
+		iSlideW=oUlLi[0].offsetWidth;
+		transition('none');
+		translate(-iNow2*iSlideW);
+	}
+	resizeFn();
+	window.addEventListener(resize,resizeFn,false);
+	oUl.addEventListener('touchstart',fnStart,false);
+	oUl.addEventListener('touchmove',fnMove,false);
+	oUl.addEventListener('touchend',fnEnd,false);
 	function fnStart(e){
-		var touchs=e.changedTouches[0];
-		startX=touchs.pageX;
-		startY=touchs.pageY;
-		scrollY=undefined;
-		disX=0;
-		clearTimeout(timer);
-		clearInterval(timer2);
+		var ev=e.changedTouches[0];
+		iStartX=ev.pageX;
+		iStartY=ev.pageY;
+		transition('none');
+		date=Date.now();
+		offY=undefined;
+		clearTimeout(timer1);
+		if(bBtn){
+			yxhw();
+		}
+		if(iNow1==iLen-1){
+			oUlLi[0].style.transform=oUlLi[0].style.WebkitTransform='translate3d('+iSlideW*iLen+'px,0,0)';
+		}else if(iNow1==0){
+			oUlLi[iLen-1].style.transform=oUlLi[iLen-1].style.WebkitTransform='translate3d('+-iSlideW*iLen+'px,0,0)';
+		}
+		
 	}
 	function fnMove(e){
 		if(e.changedTouches.length>1||e.scale&&e.scale!==1)return;
-		var touchs=e.changedTouches[0];
-		disX=touchs.pageX-startX;
-		disY=touchs.pageY-startY;
-		if(typeof scrollY=='undefined'){
-			scrollY=!!( scrollY||Math.abs(disX)<Math.abs(disY) );
+		var ev=e.changedTouches[0];
+		iMoveX=ev.pageX-iStartX;
+		iMoveY=ev.pageY-iStartY;
+		if(typeof offY=='undefined'){
+			offY=Math.abs(iMoveX)>Math.abs(iMoveY);
 		}
-		if(!scrollY){
+		if(offY){
 			e.preventDefault();
-			translate(-(index+1)*slideW+disX,0);
+			translate(iMoveX+iNowX);
 		}
 	}
 	function fnEnd(e){
-		//if(disX==0)return;
-		e.preventDefault();
-		if(!scrollY){
-			if(Math.abs(disX)>slideW/20){
-				disX>0?index--:index++;
+		if(offY){
+			var tem=Math.abs(iMoveX);
+			if((tem>iSlideW/2)||(Date.now()-date<250&&tem>10)){
+				bBtn=true;
+				if(iMoveX>0){	
+					iNow3--;
+					iNow2=iNow2==0?iLen-1:iNow2-1;
+				}else{
+					iNow3++;
+					iNow2=iNow2==iLen-1?0:iNow2+1;
+				}
 			}
-			toMove();
+			lesgo();
 		}
-		timer2=setInterval(function(){
-			index++;
-			toMove();
-		},5000);
 	}
-	function toMove(){
-		translate(-(index+1)*slideW,350);
-		if(index==-1){ 
-			timer=setTimeout(function(){ 
-				translate(-liL*slideW,0); 
-			},350);
-			index=liL-1; 
-		}else if(index==liL){ 
-			timer=setTimeout(function(){ 
-				translate(-slideW,0); 
-			},350);
-			index=0;
+	function lesgo(){
+		iNowX=-iNow3*iSlideW;
+		transition('transform 350ms');
+		translate(iNowX);
+		oOlLi[iNow1].className='';
+		oOlLi[iNow2].className='active';
+		iNow1=iNow2;
+		//clearTimeout(timer1);
+		timer1=setTimeout(yxhw,350);
+	}
+	function yxhw(){
+		oUlLi[0].style.transform=oUlLi[0].style.WebkitTransform='none';
+		oUlLi[iLen-1].style.transform=oUlLi[iLen-1].style.WebkitTransform='none';
+		if(iNow3==iLen){	
+			iNow3=0;
+			iNowX=0;
+			transition('none');
+			translate(0);
+		}else if(iNow3==-1){
+			iNow3=iLen-1;
+			iNowX=-iNow3*iSlideW;
+			transition('none');
+			translate(iNowX);
 		}
-		$olLi.removeClass('now').eq(index).addClass('now');
+		bBtn=false;
 	}
-	timer2=setInterval(function(){
+	/*timer2=setInterval(function(){
 		index++;
 		toMove();
-	},5000);
+	},5000);*/
 }
 </script>
 </body>
