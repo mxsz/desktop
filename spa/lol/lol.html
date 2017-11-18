@@ -1,0 +1,331 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+<!--<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">-->
+<meta name="keywords" content="单页,h5,前端,c3,编程,web,app,SPA">
+<meta name="description" content="单页面开发对用户体验较好，但是SEO是个问题">
+<meta name="apple-mobile-app-capable" content="yes">
+<meta name="apple-mobile-app-status-bar-style" content="black">
+<meta name="format-detection" content="telphone=no,email=no">
+<!--<link rel="stylesheet" href="css/1.css" media="all and (min-width:400px)">-->
+<title>魔新使者-单页面</title>
+<style>
+/*@import url(css/1.css) (min-width:400px) and (max-width:600px);
+@import url(css/1.css) (min-width:601px) and (max-width:800px);*/
+/*
+	name:
+	border-radius	-webkit-	-moz-
+	background-size		-webkit-	-moz-	-o-
+	box-shadow		-webkit-	-moz-
+	text-overflow	-o-
+	transform	-webkit-	-moz-	-o-		-ms-
+	transform-origin	-webkit-	-moz-	-o-		-ms-
+	transform-style		-webkit-	-moz-
+	perspective		-webkit-	-moz-
+	perspective-origin		-webkit-	-moz-
+	backface-visibility		-webkit-	-moz-
+	transition		-webkit-	-moz-	-o-
+	transition-delay		-webkit-	-moz-	-o-
+	transition-duration		-webkit-	-moz-	-o-
+	transition-property		-webkit-	-moz-	-o-
+	transition-timing-function		-webkit-	-moz-	-o-
+	animation	-webkit-	-moz-	-o-
+	animation-name		-webkit-	-moz-	-o-
+	animation-duration		-webkit-	-moz-	-o-
+	animation-timing-function		-webkit-	-moz-	-o-
+	animation-delay		-webkit-	-moz-	-o-
+	animation-iteration-count		-webkit-	-moz-	-o-
+	animation-direction		-webkit-	-moz-	-o-
+	animation-play-state	-webkit-	-moz-	-o-
+	column-count	-webkit-	-moz-
+	column-gap		-webkit-	-moz-
+	column-rule		-webkit-	-moz-
+	column-rule-color		-webkit-	-moz-
+	column-rule-style		-webkit-	-moz-
+	column-rule-width		-webkit-	-moz-
+	column-width	-webkit-	-moz-
+	box-sizing		-webkit-	-moz-
+	
+	
+	value:
+	linear-gradient		-webkit-	-moz-	-o-
+	flex	-webkit-	-moz-
+*/
+body,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,a,code,em,img,q,small,strong,dd,dl,dt,li,ol,ul,fieldset,form,label,table,tbody,tr,th,td,input{margin:0;padding:0;}
+*,::before,::after{-webkit-box-sizing:border-box;box-sizing:border-box;}
+body{-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;font-family:Helvetica,"微软雅黑";font-size:14px;}
+ol,ul{list-style:none;}
+a,input,button{-webkit-tap-highlight-color:rgba(0,0,0,0);}
+a,a:active,a:hover,a:focus,a:visited{text-decoration:none;}
+input,button{-webkit-appearance:none;border-radius:0;}
+input,select,textarea{outline:none;}
+img{vertical-align:middle;}
+i,em{font-style:normal;}
+table{border-collapse:collapse;}
+.clearfix:after{display:block;clear:both;content:"";visibility:hidden;height:0;}
+ 
+#zhuti{width:100%;overflow-x:hidden;}
+#header{width:100%;height:.88rem;background:#2f323b;position:relative;}
+#header a{width:1.04rem;height:100%;position:absolute;top:0;background:url(img/lol-icon.png) no-repeat;background-size:1.19rem .4rem;}
+#header a:nth-child(1){left:0;background-position:.34rem .26rem;}
+#header a:nth-child(3){right:0;background-position:-.44rem .24rem;}
+#header h1{position:absolute;left:1.04rem;right:1.04rem;height:100%;text-align:center;font-size:.34rem;line-height:.88rem;color:#d6def5;}
+#nav-list{width:100%;height:.82rem;}
+#nav-list > .nav{width:10000px;height:100%;padding:0 .26rem;}
+#nav-list > .nav a{width:1.2rem;height:100%;float:left;text-align:center;line-height:.82rem;font-size:.32rem;color:#707070;}
+#nav-list > .nav .active{color:#669fec;}
+#nav-list > .slide{width:10000px;height:100px;}
+#nav-list > .slide .item{width:6.4rem;overflow:hidden;float:left;}
+#zuixin > .nav{width:100%;height:.9rem;background:#f1f1f1;text-align:center;line-height:.9rem;}
+#zuixin > .nav a{width:25%;height:100%;float:left;font-size:.24rem;color:#717171;}
+/*轮播图公共部分*/
+.item-slide{width:99999px;height:1.96rem;}
+.item-slide li{width:6.4rem;height:100%;float:left;}
+.item-slide li a{width:100%;height:100%;display:block;}
+.item-slide li img{max-width:100%;max-height:100%;}
+/*新闻列表公共部分*/
+.item-list{width:100%;overflow:hidden;}
+.item-list a{width:100%;height:1.68rem;display:block;border-bottom:1px solid #e9e9e9;padding:.14rem .2rem;overflow:hidden;}
+.item-list a > div{height:1.4rem;float:left;}
+.item-list-img{width:2.06rem;text-align:center;}
+.item-list-img img{max-width:100%;max-height:100%;}
+.item-list-info{width:3.94rem;}
+.item-list-info h3{font-size:.32rem;color:#32393d;font-weight:normal;padding:0 0 0 .22rem;height:.96rem;line-height:.48rem;letter-spacing:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;overflow:hidden;}
+.item-list-info > div{height:.44rem;line-height:.64rem;padding:0 0 0 .22rem;}
+.item-list-info > div span{color:#afafaf;font-size:.24rem;}
+.item-list-info > div span:nth-child(1){float:left;}
+.item-list-info > div span:nth-child(2){float:right;}
+</style>
+<script>
+!function(win){
+	var doc=win.document,
+		oHtml=doc.documentElement,
+		resize='onorientationchange' in win?'orientationchange':'resize',
+		fn=function(){
+			var w=oHtml.clientWidth;
+			if(!w){
+				return;
+			}else if(w>640){
+				w=640;
+			}
+			oHtml.style.fontSize=100*(w/640)+'px';
+		};
+	fn();
+	if(!doc.addEventListener)return;
+	win.addEventListener(resize,fn,false);
+	doc.addEventListener('DOMContentLoaded',fn,false);
+}(window);
+</script>
+</head>
+<body>
+<section id="zhuti">
+	<div id="header">
+    	<a href="javascript:;"></a>
+        <h1>回校的第一天</h1>
+        <a href="javascript:;"></a>
+    </div>
+    <div id="nav-list">
+        <nav class="nav">
+            <a href="javascript:;" data-hash="zuixin" class="active">最新</a>
+            <a href="javascript:;" data-hash="xinwen">新闻</a>
+            <a href="javascript:;" data-hash="saishi">赛事</a>
+            <a href="javascript:;" data-hash="yule">娱乐</a>
+            <a href="javascript:;" data-hash="jingcai">竞猜</a>
+            <a href="javascript:;" data-hash="anli">案例</a>
+            <a href="javascript:;" data-hash="feiyong">费用</a>
+        </nav>
+        <div class="slide">
+            <div class="item" id="zuixin" data-hash="zuixin">
+            	<ul class="item-slide">
+                	<li><a href="#1"><img src="img/slide1.jpg"></a></li>
+                    <li><a href="#2"><img src="img/slide2.jpg"></a></li>
+                    <li><a href="#3"><img src="img/slide3.jpg"></a></li>
+                </ul>
+                <nav class="nav">
+                	<a href="javascript:;">战绩</a>
+                    <a href="javascript:;">视频</a>
+                    <a href="javascript:;">赛事</a>
+                    <a href="javascript:;">福利</a>
+                </nav>
+                <div class="item-list">
+                	<a href="#1">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#2">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#3">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#4">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#5">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#6">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#7">
+                    	<div class="item-list-img"><img src="img/item1.jpg"></div>
+                        <div class="item-list-info">
+                        	<h3>生命的到来是有道理它会随着时间流逝，而我们又何须感叹</h3>
+                            <div>
+                            	<span>4小时前</span>
+                                <span>289评</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="item" id="xinwen" data-hash="xinwen"></div>
+            <div class="item" id="saishi" data-hash="saishi"></div>
+            <div class="item" id="yule" data-hash="yule"></div>
+            <div class="item" id="jingcai" data-hash="jingcai"></div>
+            <div class="item" id="anli" data-hash="anli"></div>
+            <div class="item" id="feiyong" data-hash="feiyong"></div>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+function slide(id){
+	var $box=$(id);
+	var $ul=$box.find('.slides_ul');
+	var $ol=$box.find('.slides_ol');
+	var $li=$ul.find('li');
+	var $olLi=$ol.find('li');
+	var startX=0;
+	var startY=0;
+	var disX=0;
+	var disY=0;
+	var scrollY;	
+	var index=0;
+	var timer=0;
+	var timer2=0;
+	var slideW=0;
+	var liL=$li.length;
+	var newLength=liL+2;
+	$ul.prepend($li.eq(liL-1).clone());
+	$ul.append($li.eq(0).clone());
+	var translate=function(target,iSpeed){
+		$ul.get(0).style.webkitTransitionDuration=$ul.get(0).style.transitionDuration=iSpeed+'ms';
+		$ul.get(0).style.webkitTransform='translate('+target+'px,0)'+'translateZ(0.01px)';
+	};
+	var	resize='onorientationchange' in window ? 'orientationchange' : 'resize';
+	var orientationChange=function(){
+		slideW=$li.width();
+		$ul.css('width',newLength*slideW);
+		translate(-(index+1)*slideW,0);
+	}
+	orientationChange();
+	$(window).on(resize,orientationChange);
+	
+	$ul.on('touchstart',fnStart);
+	$ul.on('touchmove',fnMove);
+	$ul.on('touchend',fnEnd);
+	function fnStart(e){
+		var touchs=e.changedTouches[0];
+		startX=touchs.pageX;
+		startY=touchs.pageY;
+		scrollY=undefined;
+		disX=0;
+		clearTimeout(timer);
+		clearInterval(timer2);
+	}
+	function fnMove(e){
+		if(e.changedTouches.length>1||e.scale&&e.scale!==1)return;
+		var touchs=e.changedTouches[0];
+		disX=touchs.pageX-startX;
+		disY=touchs.pageY-startY;
+		if(typeof scrollY=='undefined'){
+			scrollY=!!( scrollY||Math.abs(disX)<Math.abs(disY) );
+		}
+		if(!scrollY){
+			e.preventDefault();
+			translate(-(index+1)*slideW+disX,0);
+		}
+	}
+	function fnEnd(e){
+		//if(disX==0)return;
+		e.preventDefault();
+		if(!scrollY){
+			if(Math.abs(disX)>slideW/20){
+				disX>0?index--:index++;
+			}
+			toMove();
+		}
+		timer2=setInterval(function(){
+			index++;
+			toMove();
+		},5000);
+	}
+	function toMove(){
+		translate(-(index+1)*slideW,350);
+		if(index==-1){ 
+			timer=setTimeout(function(){ 
+				translate(-liL*slideW,0); 
+			},350);
+			index=liL-1; 
+		}else if(index==liL){ 
+			timer=setTimeout(function(){ 
+				translate(-slideW,0); 
+			},350);
+			index=0;
+		}
+		$olLi.removeClass('now').eq(index).addClass('now');
+	}
+	timer2=setInterval(function(){
+		index++;
+		toMove();
+	},5000);
+}
+</script>
+</body>
+</html>
