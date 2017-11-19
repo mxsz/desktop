@@ -8,6 +8,7 @@
 <meta name="apple-mobile-app-capable" content="yes">
 <meta name="apple-mobile-app-status-bar-style" content="black">
 <meta name="format-detection" content="telphone=no,email=no">
+<link href="img/xiaotubiao.ico" rel="icon">
 <title>魔新使者-单页面</title>
 <style>
 body,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,a,code,em,img,q,small,strong,dd,dl,dt,li,ol,ul,fieldset,form,label,table,tbody,tr,th,td,input{margin:0;padding:0;}
@@ -32,7 +33,8 @@ table{border-collapse:collapse;}
 #nav-list{width:100%;height:.82rem;}
 #nav-list > .nav{width:10000px;height:100%;padding:0 .26rem;}
 #nav-list > .nav a{width:1.2rem;height:100%;float:left;text-align:center;line-height:.82rem;font-size:.32rem;color:#707070;}
-#nav-list > .nav .active{color:#669fec;}
+#nav-list > .nav .active{color:#669fec;position:relative;}
+#nav-list > .nav .active:after{content:"";width:.4rem;height:.05rem;position:absolute;left:50%;bottom:0;margin-left:-.2rem;background:#669fec;border-radius:10px;}
 #nav-list > .slide{width:10000px;height:100px;}
 #nav-list > .slide .item{width:6.4rem;overflow:hidden;float:left;}
 #zuixin > .nav{width:100%;height:.9rem;background:#f1f1f1;text-align:center;line-height:.9rem;}
@@ -108,10 +110,10 @@ table{border-collapse:collapse;}
                         <li><a href="#5"><img src="img/slide5.jpg"></a></li>
                     </ul>
                     <ol class="item-slide-ol">
-                    	<li></li>
+                    	<li class="active"></li>
                         <li></li>
                         <li></li>
-                        <li class="active"></li>
+                        <li></li>
                         <li></li>
                     </ol>
                 </div>
@@ -185,41 +187,43 @@ table{border-collapse:collapse;}
 </section>
 
 
-
 <script>
-var oItemSlide=document.getElementsByClassName('item-slide')[0];
-slide('.item-slide');
-function slide(id){
-	var oBox=document.querySelector(id);
-	var oUl=oBox.querySelector('.item-slide-ul');
-	var oOl=oBox.querySelector('.item-slide-ol');
-	var oUlLi=oUl.querySelectorAll('li');
-	var oOlLi=oOl.querySelectorAll('li');
-	var iLen=oUlLi.length;
-	if(iLen===1)return;
-	var iSlideW=0;//滑动一屏的宽
-	var iNowX=0;//当前的translateX
-	var iNowY=0;//当前的translateY
-	var iStartX=0;//手指按下的pageX
-	var iStartY=0;//手指按下的pageY
-	var iMoveX=0;//手指移动的横距离
-	var iMoveY=0;//手指移动的纵距离
-	var iNow1=3;
-	var iNow2=3;
-	var iNow3=3;
-	var date=0;//手指按下的时间戳
-	var timer1=0;//延时器
-	var timer2=0;//定时器
-	var bBtn=false;
-	var offY;
-	var translate=function(obj,num){
-		obj.style.transform=obj.style.WebkitTransform='translate3d('+num+'px,0,0)';
-	};
-	var transition=function(v){
-		oUl.style.transition=oUl.style.WebkitTransition=v;
+slide('.item-slide',false);
+function slide(id,loop){
+	var oBox=document.querySelector(id),
+		oUl=oBox.querySelector('.item-slide-ul'),
+		oOl=oBox.querySelector('.item-slide-ol'),
+		oUlLi=oUl.getElementsByTagName('li'),
+		oOlLi=oOl.getElementsByTagName('li'),
+		iLen=oUlLi.length,
+		iSlideW=0,//滑动一屏的宽
+		iNowX=0,//当前的translateX
+		iNowY=0,//当前的translateY
+		iStartX=0,//手指按下的pageX
+		iStartY=0,//手指按下的pageY
+		iMoveX=0,//手指移动的横距离
+		iMoveY=0,//手指移动的纵距离
+		iNow1=0,//当前按钮指示器
+		iNow2=0,//下一个按钮指示器
+		iNow3=0,//(下/上)一张图
+		date=0,//手指按下的时间戳
+		timer1=0,//延时器
+		timer2=0,//定时器
+		bBtn=false,
+		offY,
+		resize='onorientationchange' in window?'orientationchange':'resize',
+		translate=function(obj,num){obj.style.transform=obj.style.WebkitTransform='translate3d('+num+'px,0,0)';},
+		transition=function(v){oUl.style.transition=oUl.style.WebkitTransition=v;};
+	if(iLen<=1){
+		return;
+	}else if(iLen===2){
+		var newLi1=oUlLi[0].cloneNode(true);
+		var newLi2=oUlLi[1].cloneNode(true);	
+		oUl.insertBefore(newLi2,oUlLi[0]);
+		oUl.appendChild(newLi1);
+		iNow3=1;
 	}
-	var	resize='onorientationchange' in window?'orientationchange':'resize';
-	var resizeFn=function(){
+	function resizeFn(){
 		iSlideW=oUlLi[0].offsetWidth;
 		iNowX=-iNow3*iSlideW;
 		transition('none');
@@ -227,10 +231,7 @@ function slide(id){
 	}
 	resizeFn();
 	window.addEventListener(resize,resizeFn,false);
-	oUl.addEventListener('touchstart',fnStart,false);
-	oUl.addEventListener('touchmove',fnMove,false);
-	oUl.addEventListener('touchend',fnEnd,false);
-	function fnStart(e){
+	oUl.addEventListener('touchstart',function(e){
 		var ev=e.changedTouches[0];
 		iStartX=ev.pageX;
 		iStartY=ev.pageY;
@@ -238,15 +239,12 @@ function slide(id){
 		offY=undefined;
 		transition('none');
 		clearTimeout(timer1);
-		clearTimeout(timer2);
+		clearInterval(timer2);
 		bBtn&&yxhw();
-		if(iNow1==iLen-1){
-			translate(oUlLi[0],iSlideW*iLen);
-		}else if(iNow1==0){
-			translate(oUlLi[iLen-1],-iSlideW*iLen);
-		}
-	}
-	function fnMove(e){
+		bBtn=true;
+		around();
+	},false);
+	oUl.addEventListener('touchmove',function(e){
 		if(e.changedTouches.length>1||e.scale&&e.scale!==1)return;
 		var ev=e.changedTouches[0];
 		iMoveX=ev.pageX-iStartX;
@@ -258,60 +256,78 @@ function slide(id){
 			e.preventDefault();
 			translate(this,iMoveX+iNowX);
 		}
-	}
-	function fnEnd(e){
+	},false);
+	oUl.addEventListener('touchend',function(e){
 		if(offY){
 			var tem=Math.abs(iMoveX);
 			if((tem>iSlideW/2)||(Date.now()-date<250&&tem>10)){
-				if(iMoveX>0){	
+				if(iMoveX>0){
 					iNow3--;
-					iNow2=iNow2==0?iLen-1:iNow2-1;
+					iNow2=iNow2===0?iLen-1:iNow2-1;
 				}else{
 					iNow3++;
-					iNow2=iNow2==iLen-1?0:iNow2+1;
+					iNow2=iNow2===iLen-1?0:iNow2+1;
 				}
-				bBtn=true;
 			}
 			lesgo();
 		}
 		timer2=setInterval(interval,4000);
+	},false);	
+	function around(){
+		if(iLen>2){
+			if(iNow1===iLen-1){
+				translate(oUlLi[0],iSlideW*iLen);
+			}else if(iNow1===0){
+				translate(oUlLi[iLen-1],-iSlideW*iLen);
+			}
+		}
 	}
 	function lesgo(){
 		iNowX=-iNow3*iSlideW;
 		transition('transform 350ms');
 		translate(oUl,iNowX);
-		oOlLi[iNow1].className='';
-		oOlLi[iNow2].className='active';
-		iNow1=iNow2;
 		timer1=setTimeout(yxhw,350);
 	}
 	function yxhw(){
-		oUlLi[0].style.transform=oUlLi[0].style.WebkitTransform='none';
-		oUlLi[iLen-1].style.transform=oUlLi[iLen-1].style.WebkitTransform='none';
-		if(iNow3==iLen){	
-			iNow3=0;
-			iNowX=0;
-			transition('none');
-			translate(oUl,0);
-		}else if(iNow3==-1){
-			iNow3=iLen-1;
+		if(iLen>2){
+			if(iNow1===0){
+				oUlLi[iLen-1].style.transform=oUlLi[iLen-1].style.WebkitTransform='none';
+			}else if(iNow1===iLen-1){
+				oUlLi[0].style.transform=oUlLi[0].style.WebkitTransform='none';
+			}
+			if(iNow3===iLen){	
+				iNow3=0;
+				iNowX=0;
+				transition('none');
+				translate(oUl,0);
+			}else if(iNow3===-1){
+				iNow3=iLen-1;
+				iNowX=-iNow3*iSlideW;
+				transition('none');
+				translate(oUl,iNowX);
+			}
+		}else{
+			if(iNow3===3){	
+				iNow3=1;
+			}else if(iNow3===0){
+				iNow3=2;
+			}
 			iNowX=-iNow3*iSlideW;
 			transition('none');
 			translate(oUl,iNowX);
 		}
+		oOlLi[iNow1].className='';
+		oOlLi[iNow2].className='active';
+		iNow1=iNow2;
 		bBtn=false;
 	}
-	timer2=setInterval(interval,4000);
 	function interval(){
-		if(iNow1==iLen-1){
-			translate(oUlLi[0],iSlideW*iLen);
-		}else if(iNow1==0){
-			translate(oUlLi[iLen-1],-iSlideW*iLen);
-		}
+		around();
 		iNow3++;
 		iNow2=iNow2==iLen-1?0:iNow2+1;
 		lesgo();
 	}
+	timer2=setInterval(interval,4000);
 }
 </script>
 </body>
