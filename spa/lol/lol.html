@@ -147,10 +147,14 @@ table{border-collapse:collapse;}
                         <li><a href="#1"><img src="img/slide1.jpg"></a></li>
                         <li><a href="#2"><img src="img/slide2.jpg"></a></li>
                         <li><a href="#3"><img src="img/slide3.jpg"></a></li>
+                        <li><a href="#4"><img src="img/slide4.jpg"></a></li>
+                        <li><a href="#5"><img src="img/slide5.jpg"></a></li>
                     </ul>
                     <ol class="item-slide-ol">
-                    	<li class="active"></li>
+                    	<li></li>
                         <li></li>
+                        <li></li>
+                        <li class="active"></li>
                         <li></li>
                     </ol>
                 </div>
@@ -235,22 +239,24 @@ function slide(id){
 	var oUlLi=oUl.querySelectorAll('li');
 	var oOlLi=oOl.querySelectorAll('li');
 	var iLen=oUlLi.length;
-	var iSlideW=0;
+	if(iLen===1)return;
+	var iSlideW=0;//滑动一屏的宽
 	var iNowX=0;//当前的translateX
 	var iNowY=0;//当前的translateY
 	var iStartX=0;//手指按下的pageX
 	var iStartY=0;//手指按下的pageY
 	var iMoveX=0;//手指移动的横距离
 	var iMoveY=0;//手指移动的纵距离
-	var iNow1=0;
-	var iNow2=0;
-	var iNow3=0;
-	var date=0;
-	var timer1=0;
+	var iNow1=3;
+	var iNow2=3;
+	var iNow3=3;
+	var date=0;//手指按下的时间戳
+	var timer1=0;//延时器
+	var timer2=0;//定时器
 	var bBtn=false;
 	var offY;
-	var translate=function(i){
-		oUl.style.transform=oUl.style.WebkitTransform='translate3d('+i+'px,0,0)';
+	var translate=function(obj,num){
+		obj.style.transform=obj.style.WebkitTransform='translate3d('+num+'px,0,0)';
 	};
 	var transition=function(v){
 		oUl.style.transition=oUl.style.WebkitTransition=v;
@@ -258,8 +264,9 @@ function slide(id){
 	var	resize='onorientationchange' in window?'orientationchange':'resize';
 	var resizeFn=function(){
 		iSlideW=oUlLi[0].offsetWidth;
+		iNowX=-iNow3*iSlideW;
 		transition('none');
-		translate(-iNow2*iSlideW);
+		translate(oUl,iNowX);
 	}
 	resizeFn();
 	window.addEventListener(resize,resizeFn,false);
@@ -270,19 +277,17 @@ function slide(id){
 		var ev=e.changedTouches[0];
 		iStartX=ev.pageX;
 		iStartY=ev.pageY;
-		transition('none');
 		date=Date.now();
 		offY=undefined;
+		transition('none');
 		clearTimeout(timer1);
-		if(bBtn){
-			yxhw();
-		}
+		clearTimeout(timer2);
+		bBtn&&yxhw();
 		if(iNow1==iLen-1){
-			oUlLi[0].style.transform=oUlLi[0].style.WebkitTransform='translate3d('+iSlideW*iLen+'px,0,0)';
+			translate(oUlLi[0],iSlideW*iLen);
 		}else if(iNow1==0){
-			oUlLi[iLen-1].style.transform=oUlLi[iLen-1].style.WebkitTransform='translate3d('+-iSlideW*iLen+'px,0,0)';
+			translate(oUlLi[iLen-1],-iSlideW*iLen);
 		}
-		
 	}
 	function fnMove(e){
 		if(e.changedTouches.length>1||e.scale&&e.scale!==1)return;
@@ -294,14 +299,13 @@ function slide(id){
 		}
 		if(offY){
 			e.preventDefault();
-			translate(iMoveX+iNowX);
+			translate(this,iMoveX+iNowX);
 		}
 	}
 	function fnEnd(e){
 		if(offY){
 			var tem=Math.abs(iMoveX);
 			if((tem>iSlideW/2)||(Date.now()-date<250&&tem>10)){
-				bBtn=true;
 				if(iMoveX>0){	
 					iNow3--;
 					iNow2=iNow2==0?iLen-1:iNow2-1;
@@ -309,18 +313,19 @@ function slide(id){
 					iNow3++;
 					iNow2=iNow2==iLen-1?0:iNow2+1;
 				}
+				bBtn=true;
 			}
 			lesgo();
 		}
+		timer2=setInterval(interval,4000);
 	}
 	function lesgo(){
 		iNowX=-iNow3*iSlideW;
 		transition('transform 350ms');
-		translate(iNowX);
+		translate(oUl,iNowX);
 		oOlLi[iNow1].className='';
 		oOlLi[iNow2].className='active';
 		iNow1=iNow2;
-		//clearTimeout(timer1);
 		timer1=setTimeout(yxhw,350);
 	}
 	function yxhw(){
@@ -330,19 +335,26 @@ function slide(id){
 			iNow3=0;
 			iNowX=0;
 			transition('none');
-			translate(0);
+			translate(oUl,0);
 		}else if(iNow3==-1){
 			iNow3=iLen-1;
 			iNowX=-iNow3*iSlideW;
 			transition('none');
-			translate(iNowX);
+			translate(oUl,iNowX);
 		}
 		bBtn=false;
 	}
-	/*timer2=setInterval(function(){
-		index++;
-		toMove();
-	},5000);*/
+	timer2=setInterval(interval,4000);
+	function interval(){
+		if(iNow1==iLen-1){
+			translate(oUlLi[0],iSlideW*iLen);
+		}else if(iNow1==0){
+			translate(oUlLi[iLen-1],-iSlideW*iLen);
+		}
+		iNow3++;
+		iNow2=iNow2==iLen-1?0:iNow2+1;
+		lesgo();
+	}
 }
 </script>
 </body>
